@@ -1,0 +1,14 @@
+---
+
+#
+# playbook: install top powerbroker identity service, open edition on the system
+# 
+# description: install the fedora epel library, only for 64bit
+#
+
+# Directives for all children nodes
+- hosts: all
+
+  tasks:
+  - name: powerbroker identity service
+    script: ./powerbroker/pbis-open-8.0.1.2029.linux.x86_64.rpm.sh  --nox11 -- install
