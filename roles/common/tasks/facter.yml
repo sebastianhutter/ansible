@@ -8,6 +8,8 @@
 
 # Directives for all children nodes
 - hosts: all
+  sudo: true
+  user: ansible
 
   tasks:
   - name: install ruby

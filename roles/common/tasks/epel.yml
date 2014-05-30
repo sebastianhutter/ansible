@@ -11,7 +11,6 @@
   # enable sudo
   sudo: true
   user: ansible
-  sudo_pass: $1$66MhpGge$MmeSG8PtFaxojKLhBHQhv/  
 
   tasks:
   - name: install epel from fedoraproject
