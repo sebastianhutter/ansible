@@ -10,6 +10,8 @@ if [[ $EUID -ne 0 ]]; then
 fi
 
 USERNAME=ansible
+# cant specify sudo password in ansible playbook yet. user will be created without password
+#USERPASS='$1$66MhpGge$MmeSG8PtFaxojKLhBHQhv/'
 ANSIBLEHOME=/var/ansible
 SUDOERSFILE=/etc/sudoers.d/ansible
 PAM=/etc/pam.d/sudo
@@ -45,18 +47,17 @@ if [[ $? -ne 0 ]]; then
 	exit 4
 fi
 
-# allow ssh authentication for sudo
-echo Defaults env_keep += \"SSH_AUTH_SOCK\" > $SUDOERSFILE
-echo %$USERNAME ALL=\(ALL\) ALL >> $SUDOERSFILE
+# allow ansible to execute any command without password
+echo $USERNAME ALL=\(ALL\) NOPASSWD:ALL >> $SUDOERSFILE
 
-# now configure pam to enable sudo authentication via ssh
-# only the authorized keys for the ansible users are allowed
-# http://siliconexus.com/blog/2012/11/sudo-authentication-via-ssh-agent/comment-page-1/
-sed -i "2i\auth sufficient pam_ssh_agent_auth.so file=$ANSIBLEHOME/.ssh/authorized_keys" $PAM
-if [[ $? -ne 0 ]]; then
-	echo "could not add pam auth to '$PAM'. aborting ..." 1>&2
-	exit 5
-fi
+## now configure pam to enable sudo authentication via ssh
+## only the authorized keys for the ansible users are allowed
+## http://siliconexus.com/blog/2012/11/sudo-authentication-via-ssh-agent/comment-page-1/
+#sed -i "2i\auth sufficient pam_ssh_agent_auth.so file=$ANSIBLEHOME/.ssh/authorized_keys" $PAM
+#if [[ $? -ne 0 ]]; then
+#	echo "could not add pam auth to '$PAM'. aborting ..." 1>&2
+#	exit 5
+#fi
 
 # create the ssh directory for the ansible user
 mkdir $ANSIBLEHOME/.ssh

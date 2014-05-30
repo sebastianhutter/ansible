@@ -8,6 +8,10 @@
 
 # Directives for all children nodes
 - hosts: all
+  # enable sudo
+  sudo: true
+  user: ansible
+  sudo_pass: $1$66MhpGge$MmeSG8PtFaxojKLhBHQhv/  
 
   tasks:
   - name: install epel from fedoraproject

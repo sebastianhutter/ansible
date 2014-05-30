@@ -1,0 +1,14 @@
+---
+
+#
+# site configuration
+#
+
+- hosts: all
+  sudo: true
+  user: ansible
+
+  tasks:
+  - include: roles/common/tasks/epel.yml
+  - include: roles/common/tasks/facter.yml
+  - include: roles/common/tasks/powerbroker.yml 
