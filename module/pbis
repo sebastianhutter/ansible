@@ -38,132 +38,91 @@ author: Sebastian Hutter
 '''
 
 EXAMPLES = '''
-# join the domain mydomain
-- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS"  
+---
+# join domain MYDOMAIN
+- pbis: domain=MYDOMAIN domuser=MYUSER dompass=MYPASS
 
-# leave the domain mydomain
-- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS" state="absent"
+# leave the domain MYDOMAIN
+- pbis: domuser=MYUSER dompas=MYPASS state=absent
 
-# join the domain and move the computer to an OU
-- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS" ou="topLevelOU/middlelevelOU/LowerLevelOU/TargetOU" 
+# join domain MYDOMAIN in a specific ou
+- pbis: domain=MYDOMAIN domuser=MYUSER dompass=MYPASS ou=toplevelou/middleou/targetou
 '''
 
-import os
+def join(domain, domuser, dompass, ou, domainjoin_cmd, result, module):
+    if ou:
+        join_command = "%s join --ou %s %s %s %s" % (domainjoin_cmd, ou, domain, domuser, dompass)
+    else:
+        join_command = "%s join %s %s %s" % (domainjoin_cmd, domain, domuser, dompass)        
 
-
-def add_job(module, result, at_cmd, count, units, command, script_file):
-    at_command = "%s now + %s %s -f %s" % (at_cmd, count, units, script_file)
-    rc, out, err = module.run_command(at_command, check_rc=True)
-    if command:
-        os.unlink(script_file)
+    rc, out, err = module.run_command(join_command, check_rc=True)
+    
     result['changed'] = True
+    result['state'] = 'present'
+    result['msg'] = out
 
+def leave(domuser, dompass, domainjoin_cmd, result, module):
+    leave_command = "%s leave %s %s" % (domainjoin_cmd, domuser, dompass)        
+    rc, out, err = module.run_command(leave_command, check_rc=True)
+    
+    result['changed'] = True
+    result['state'] = 'absent'
+    result['msg'] = out
+    
+def is_member(domainjoin_cmd, result, module):
+    check_command = "%s query" % (domainjoin_cmd)
+    rc, out, err = module.run_command(check_command, check_rc=True)
+    
+    # get the domain name from the command output
+    domain = (out.strip())[(out.strip()).rfind("=")+1:]
 
-def delete_job(module, result, at_cmd, command, script_file):
-    for matching_job in get_matching_jobs(module, at_cmd, script_file):
-        at_command = "%s -d %s" % (at_cmd, matching_job)
-        rc, out, err = module.run_command(at_command, check_rc=True)
-        result['changed'] = True
-    if command:
-        os.unlink(script_file)
-    module.exit_json(**result)
-
-
-def get_matching_jobs(module, at_cmd, script_file):
-    matching_jobs = []
-
-    atq_cmd = module.get_bin_path('atq', True)
-
-    # Get list of job numbers for the user.
-    atq_command = "%s" % atq_cmd
-    rc, out, err = module.run_command(atq_command, check_rc=True)
-    current_jobs = out.splitlines()
-    if len(current_jobs) == 0:
-        return matching_jobs
-
-    # Read script_file into a string.
-    script_file_string = open(script_file).read().strip()
-
-    # Loop through the jobs.
-    #   If the script text is contained in a job add job number to list.
-    for current_job in current_jobs:
-        split_current_job = current_job.split()
-        at_command = "%s -c %s" % (at_cmd, split_current_job[0])
-        rc, out, err = module.run_command(at_command, check_rc=True)
-        if script_file_string in out:
-            matching_jobs.append(split_current_job[0])
-
-    # Return the list.
-    return matching_jobs
-
-
-def create_tempfile(command):
-    filed, script_file = tempfile.mkstemp(prefix='at')
-    fileh = os.fdopen(filed, 'w')
-    fileh.write(command)
-    fileh.close()
-    return script_file
-
+    if domain:
+        return True
+    else:
+        return False
 
 def main():
-
     module = AnsibleModule(
         argument_spec = dict(
-            command=dict(required=False,
+            domain=dict(required=True,
+                        type='str'),
+            domuser=dict(required=True,
+                         default=None,
                          type='str'),
-            script_file=dict(required=False,
-                             type='str'),
-            count=dict(required=False,
-                       type='int'),
-            units=dict(required=False,
-                       default=None,
-                       choices=['minutes', 'hours', 'days', 'weeks'],
-                       type='str'),
+            dompass=dict(required=True,
+                         default=None,
+                         type='str'),
+            ou=dict(required=False,
+                         default=None,
+                         type='str'),
             state=dict(required=False,
                        default='present',
                        choices=['present', 'absent'],
                        type='str'),
-            unique=dict(required=False,
-                        default=False,
-                        type='bool')
         ),
         supports_check_mode=False
     )
 
-    at_cmd = module.get_bin_path('at', True)
+    try:
+        domainjoin_cmd = module.get_bin_path('domainjoin-cli', True)
+    except:
+        module.fail_json(msg="could not find domainjoin-cli. is pbis installed?")
 
-    command        = module.params['command']
-    script_file    = module.params['script_file']
-    count          = module.params['count']
-    units          = module.params['units']
-    state          = module.params['state']
-    unique         = module.params['unique']
+    domain = module.params['domain']
+    domuser = module.params['domuser']
+    dompass = module.params['dompass']
+    ou = module.params['ou']
+    state = module.params['state']
 
-    if (state == 'present') and (not count or not units):
-        module.fail_json(msg="present state requires count and units")
+    # set the default result
+    result = {'state': state, 'changed': False, 'msg': ''}
 
-    result = {'state': state, 'changed': False}
-
-    # If command transform it into a script_file
-    if command:
-        script_file = create_tempfile(command)
-
-    # if absent remove existing and return
-    if state == 'absent':
-        delete_job(module, result, at_cmd, command, script_file)
-
-    # if unique if existing return unchanged
-    if unique:
-        if len(get_matching_jobs(module, at_cmd, script_file)) != 0:
-            if command:
-                os.unlink(script_file)
-            module.exit_json(**result)
-
-    result['script_file'] = script_file
-    result['count'] = count
-    result['units'] = units
-
-    add_job(module, result, at_cmd, count, units, command, script_file)
+    ismember = is_member(domainjoin_cmd, result, module)
+    
+    if state == 'present' and ismember == False:
+        join(domain, domuser, dompass, ou, domainjoin_cmd, result, module)
+    if state == 'absent' and ismember == True:
+        leave(domuser, dompass, domainjoin_cmd, result, module)
 
     module.exit_json(**result)
 
