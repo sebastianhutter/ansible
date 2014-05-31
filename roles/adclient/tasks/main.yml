@@ -22,9 +22,9 @@
 # join the domain defined in the credentials vault
 - name: join the active directory
   pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} 
-#when: not orgunit 
+  when: not orgunit 
 
 # join the domain defined in the credentials vault if an ou is specified
-#- name: join the active directory into specific OU
-#  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} 
-#  when: orgunit 
+- name: join the active directory into specific OU
+  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} 
+  when: orgunit 
