@@ -4,4 +4,4 @@
   user: ansible
 
   roles:
-    - { role: adclient, orgunit: 'Assets/Servers' }
+    - role: adclient
