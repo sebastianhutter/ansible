@@ -1,0 +1,172 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
+DOCUMENTATION = '''
+---
+module: domjoin
+short_description: join or leave a domain
+description:
+ - Use this module to join an active directory domain.
+ - You need to have the PowerBroker OpenIdentity Service Open Editon or Enterprise Edition installed
+options:
+  state:
+    description:
+     - set the state of the trust between the computer and domain (present = joined, absent = leaved).
+    required: true
+    default: present
+	choices: [ "present", "absent" ]
+  domain:
+    description:
+     - the name of the domain to join or leave
+    required: true
+    default: null
+  domuser:
+    description:
+     - the username to do the domain join with.
+    required: true
+  dompass:
+    description:
+     - use this password for the domuser (unencrypted).
+    required: true
+	default: null
+  ou:
+    description:
+     - specify the ou in which the computer object should be created.
+    required: false
+    default: null
+author: Sebastian Hutter
+'''
+
+EXAMPLES = '''
+# join the domain mydomain
+- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS"  
+
+# leave the domain mydomain
+- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS" state="absent"
+
+# join the domain and move the computer to an OU
+- pbis: domain="MYDOMAIN" domuser="MYUSER" dompass="MYPASS" ou="topLevelOU/middlelevelOU/LowerLevelOU/TargetOU" 
+'''
+
+import os
+
+
+def add_job(module, result, at_cmd, count, units, command, script_file):
+    at_command = "%s now + %s %s -f %s" % (at_cmd, count, units, script_file)
+    rc, out, err = module.run_command(at_command, check_rc=True)
+    if command:
+        os.unlink(script_file)
+    result['changed'] = True
+
+
+def delete_job(module, result, at_cmd, command, script_file):
+    for matching_job in get_matching_jobs(module, at_cmd, script_file):
+        at_command = "%s -d %s" % (at_cmd, matching_job)
+        rc, out, err = module.run_command(at_command, check_rc=True)
+        result['changed'] = True
+    if command:
+        os.unlink(script_file)
+    module.exit_json(**result)
+
+
+def get_matching_jobs(module, at_cmd, script_file):
+    matching_jobs = []
+
+    atq_cmd = module.get_bin_path('atq', True)
+
+    # Get list of job numbers for the user.
+    atq_command = "%s" % atq_cmd
+    rc, out, err = module.run_command(atq_command, check_rc=True)
+    current_jobs = out.splitlines()
+    if len(current_jobs) == 0:
+        return matching_jobs
+
+    # Read script_file into a string.
+    script_file_string = open(script_file).read().strip()
+
+    # Loop through the jobs.
+    #   If the script text is contained in a job add job number to list.
+    for current_job in current_jobs:
+        split_current_job = current_job.split()
+        at_command = "%s -c %s" % (at_cmd, split_current_job[0])
+        rc, out, err = module.run_command(at_command, check_rc=True)
+        if script_file_string in out:
+            matching_jobs.append(split_current_job[0])
+
+    # Return the list.
+    return matching_jobs
+
+
+def create_tempfile(command):
+    filed, script_file = tempfile.mkstemp(prefix='at')
+    fileh = os.fdopen(filed, 'w')
+    fileh.write(command)
+    fileh.close()
+    return script_file
+
+
+def main():
+
+    module = AnsibleModule(
+        argument_spec = dict(
+            command=dict(required=False,
+                         type='str'),
+            script_file=dict(required=False,
+                             type='str'),
+            count=dict(required=False,
+                       type='int'),
+            units=dict(required=False,
+                       default=None,
+                       choices=['minutes', 'hours', 'days', 'weeks'],
+                       type='str'),
+            state=dict(required=False,
+                       default='present',
+                       choices=['present', 'absent'],
+                       type='str'),
+            unique=dict(required=False,
+                        default=False,
+                        type='bool')
+        ),
+        supports_check_mode=False
+    )
+
+    at_cmd = module.get_bin_path('at', True)
+
+    command        = module.params['command']
+    script_file    = module.params['script_file']
+    count          = module.params['count']
+    units          = module.params['units']
+    state          = module.params['state']
+    unique         = module.params['unique']
+
+    if (state == 'present') and (not count or not units):
+        module.fail_json(msg="present state requires count and units")
+
+    result = {'state': state, 'changed': False}
+
+    # If command transform it into a script_file
+    if command:
+        script_file = create_tempfile(command)
+
+    # if absent remove existing and return
+    if state == 'absent':
+        delete_job(module, result, at_cmd, command, script_file)
+
+    # if unique if existing return unchanged
+    if unique:
+        if len(get_matching_jobs(module, at_cmd, script_file)) != 0:
+            if command:
+                os.unlink(script_file)
+            module.exit_json(**result)
+
+    result['script_file'] = script_file
+    result['count'] = count
+    result['units'] = units
+
+    add_job(module, result, at_cmd, count, units, command, script_file)
+
+    module.exit_json(**result)
+
+# import module snippets
+from ansible.module_utils.basic import *
+main()
