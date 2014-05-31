@@ -27,18 +27,23 @@ if [[ $? -ne 0 ]]; then
 fi
 
 # set the selinux role for the ansible home directory
-chcon -h unconfined_u:object_r:user_home_dir_t:s0 /var/ansible     
+# only if selinux is enabled
+ENABLED=`cat /selinux/enforce`
+if [ "$ENABLED" == 1 ]; then
+	chcon -h unconfined_u:object_r:user_home_dir_t:s0 /var/ansible     
+fi
 
 # create a sudoers configuration
 # the sudoers config will allow all users in the group 'ansible' to execute commands
 # without a passwd as long as they are authenticated via ssh key
 
 # install the necessary pam module
-yum -y install pam_ssh_agent_auth
-if [[ $? -ne 0 ]]; then
-	echo "could not install pam_ssh_agent_auth module. aborting ..." 1>&2
-	exit 3
-fi
+## no pam ssh agent auth module necessary. will use nopasswd in sudo for the meantime
+#yum -y install pam_ssh_agent_auth
+#if [[ $? -ne 0 ]]; then
+#	echo "could not install pam_ssh_agent_auth module. aborting ..." 1>&2
+#	exit 3
+#fi
 
 # now create the sudoers file
 touch $SUDOERSFILE
