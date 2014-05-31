@@ -1,0 +1,30 @@
+---
+#
+# adclient role tasks
+#
+
+- name: install pbis open edition on redhat systems (64bit)
+  script: pbis-open-8.0.1.2029.linux.x86_64.rpm.sh --nox11 -- install
+  when: ansible_os_family == "RedHat" and ansible_architecture == "x86_64"
+
+- name: install pbis open edition on debian systems (64bit)
+  script: pbis-open-8.0.1.2029.linux.x86_64.deb.sh --nox11 -- install 
+  when: ansible_os_family == "Debian" and ansible_architecture == "x86_64"
+
+- name: install pbis open edition on redhat systems (32bit)
+  script: pbis-open-8.0.1.2029.linux.x86_64.rpm.sh --nox11 -- install
+  when: ansible_os_family == "RedHat" and ansible_architecture == "x86"
+
+- name: install pbis open edition on debian systems (32bit)
+  script: pbis-open-8.0.1.2029.linux.x86_64.deb.sh --nox11 -- install 
+  when: ansible_os_family == "Debian" and ansible_architecture == "x86"
+
+# join the domain defined in the credentials vault
+- name: join the active directory
+  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} 
+  when: not orgunit 
+
+# join the domain defined in the credentials vault if an ou is specified
+- name: join the active directory into specific OU
+  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} 
+  when: orgunit 
