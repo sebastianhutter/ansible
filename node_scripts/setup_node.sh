@@ -20,7 +20,7 @@ PUBLICKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAqv5AqnC19iCzOFt+bpLgvs0y9gv2COrc0
 # the setup does the following
 
 # create the user account
-useradd -c 'ansible system user. used by our configuration management' -d $ANSIBLEHOME $USERNAME
+useradd -c 'ansible system user. used by our configuration management' -m -d $ANSIBLEHOME $USERNAME
 if [[ $? -ne 0 ]]; then
 	echo "could not create user $USERNAME. aborting..." 1>&2
 	exit 2
