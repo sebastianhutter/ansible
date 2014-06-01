@@ -1,0 +1,4 @@
+# disable ctrl alt delete in the console
+
+start on control-alt-delete
+exec /bin/echo Control-Alt-Delete combination is disabled

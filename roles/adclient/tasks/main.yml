@@ -8,11 +8,11 @@
   register: installed
   ignore_errors: True
 
-- name: install pbis open edition on redhat systems (64bit)
+- name: install pbis open edition on redhat systems
   script: pbis-open-8.0.1.2029.linux.{{ ansible_architecture }}.rpm.sh --nox11 -- install
   when: ansible_os_family == "RedHat" and installed|failed
 
-- name: install pbis open edition on debian systems (64bit)
+- name: install pbis open edition on debian systems
   script: pbis-open-8.0.1.2029.linux.{{ ansible_architecture }}.deb.sh --nox11 -- install 
   when: ansible_os_family == "Debian" and installed|failed
 

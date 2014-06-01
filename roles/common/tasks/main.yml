@@ -9,26 +9,60 @@
 - name: create local user for administrative access
   user: name:sysprog comment="administrative user account" 
           password=$6$rounds=40000$VNQYBHdL90ev0M/n$MmWR26FLzZvfpX/Z5ViQ89hq6APCBd7zDmMryYkt6sya.zHAXGgKPubl01qtzhdUlAavKEToxT1JBbF9N5AFa1
+          state=present
 
 # set the sudoers file for the user
 - name: copy sudoers.d file for administrative user account
   copy: src=sudoers_sysprog dest=/etc/sudoers.d/sysprog owner=root group=root 
-          mode=644 backup=yes
+          mode=644 backup=yes state=present
 
 # if it is a redhat based machine install the epel repositories
 - name: install the epel repository if its a redhat based machine
+  yum: name=http://dl.fedoraproject.org/pub/epel/6/{{ ansible_architecture }}/epel-release-6-8.noarch.rpm state=present
+  when: ansible_os_family == "RedHat"
 
 # do a full system update
+- name: update the system (redhat)
+  yum: name=* state=latest
+  when: ansible_os_family == "RedHat"
 
-# now install git and svn
+- name: update the system (Debian)
+  apt: upgrade=dist
+  when: ansible_os_family == "Debian"
 
-# install nc
+# now install some default software packages
+- name: install must have software (redhat)
+  yum: name={{ item }} state=latest
+  with_items:
+    - nc
+    - subversion
+    - git
+
 
 # disable root login via ssh and disable
 
-# disable ipv6
+
 
 #disable ctrl+lt+delete in the console 
+# before the override configuration is copied check if the control alt del
+# configuration on the host exists
+- name: check if the control-alt-delete configuration exists
+  command: /usr/bin/test -e /etc/init/control-alt-delete.conf
+  register: ctrlexists
+  ignore_errors: True
+
+- name: copy the ctrl-alt-delete override configuration
+  script: pbis-open-8.0.1.2029.linux.{{ ansible_architecture }}.rpm.sh --nox11 -- install
+  when: ctrlexists|success
+
+ # if file not exists we should set the inittab line with the module "lineinfile"
+
+# disable ipv6
+# lineinfile module
+# NETWORKING_IPV6=no
+# IPV6INIT=no
+
+
 
 # set the ssh banner of the system
 
