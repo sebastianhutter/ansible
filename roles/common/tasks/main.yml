@@ -43,7 +43,6 @@
 # disable root login via ssh and disable
 
 
-
 #disable ctrl+lt+delete in the console 
 # before the override configuration is copied check if the control alt del
 # configuration on the host exists
@@ -53,13 +52,14 @@
   ignore_errors: True
 
 - name: copy the ctrl-alt-delete override configuration
-  script: pbis-open-8.0.1.2029.linux.{{ ansible_architecture }}.rpm.sh --nox11 -- install
+  copy: src=init_control-alt-delete.override dest=/etc/init/control-alt-delete.override
   when: ctrlexists|success
 
 # disable ipv6
--name: disable ipv6 
+-name: disable ipv6 (1)
   lineinfile: dest=/ect/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no 
-  lineinfile:  dest=/ect/sysconfig/network state=present line=IPV6INIT=no 
+-name: disable ipv6 (2)
+  lineinfile: dest=/ect/sysconfig/network state=present line=IPV6INIT=no 
 
 
 
