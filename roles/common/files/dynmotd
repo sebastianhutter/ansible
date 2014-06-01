@@ -21,9 +21,9 @@
 
 USER=`whoami`
 HOSTNAME=`uname -n`
-ROOT=`df -Ph | grep root | awk '{print $4}' | tr -d '\n'`
-HOME=`df -Ph | grep home | awk '{print $4}' | tr -d '\n'`
-BACKUP=`df -Ph | grep backup | awk '{print $4}' | tr -d '\n'`
+#ROOT=`df -Ph | grep root | awk '{print $4}' | tr -d '\n'`
+#HOME=`df -Ph | grep home | awk '{print $4}' | tr -d '\n'`
+#BACKUP=`df -Ph | grep backup | awk '{print $4}' | tr -d '\n'`
 
 MEMORY1=`free -t -m | grep "buffers/cache" | awk '{print $3" MB";}'`
 MEMORY2=`free -t -m | grep "Mem" | awk '{print $2" MB";}'`
@@ -71,8 +71,5 @@ echo "
  - Swap in use.........: `free -m | tail -n 1 | awk '{print $3}'` MB
  - Processes...........: $PSA running
  - System uptime.......: $upDays days $upHours hours $upMins minutes $upSecs seconds
- - Disk space ROOT.....: $ROOT remaining
- - Disk space HOME.....: $HOME remaining
- - Disk space BACK.....: $BACKUP remaining
 ===========================================================================
 "
