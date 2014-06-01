@@ -13,7 +13,7 @@
 
 # add public key for the user 
 - name: add public key for the sysprog user
-  authorized_key: user=sysprog key={{ lookup('file', 'sysprog.pub') }}
+  authorized_key: user=sysprog key="{{ lookup('file', 'sysprog.pub') }}"
 
 # set the sudoers file for the user
 - name: copy sudoers.d file for administrative user account
