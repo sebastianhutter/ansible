@@ -14,7 +14,7 @@
 # set the sudoers file for the user
 - name: copy sudoers.d file for administrative user account
   copy: src=sudoers_sysprog dest=/etc/sudoers.d/sysprog owner=root group=root 
-          mode=644 backup=yes state=present
+          mode=644 backup=yes
 
 # if it is a redhat based machine install the epel repositories
 - name: install the epel repository if its a redhat based machine
