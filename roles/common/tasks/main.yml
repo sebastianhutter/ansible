@@ -39,8 +39,23 @@
     - git
   when: ansible_os_family == "RedHat"
 
+# reconfigure sshd
+- name: reconfigure sshd daemon
+  copy: src=sshd_config dest=/etc/ssh/ backup=yes owner=root group=root mode=600
+  notify:
+  - restart sshd 
 
-# disable root login via ssh and disable
+# copy banner to host
+- name: copy banner (issue) to node
+  copy: src=issue dest=/etc/ backup=yes owner=root group=root mode=644
+
+# copy dynamic motd script to the node
+- name: copy dynamic motd to the node
+  copy: src=dynmotd dest=/usr/local/bin owner=root group=root mode=755
+
+# enable dynamic pseudo motd for every user who logs in
+- name: enable dynmotd script
+  lineinfile: dest=/etc/profile backup=yes state=present line=/usr/local/bin/dynmotd
 
 
 #disable ctrl+lt+delete in the console 
@@ -52,18 +67,12 @@
   ignore_errors: True
 
 - name: copy the ctrl-alt-delete override configuration
-  copy: src=init_control-alt-delete.override dest=/etc/init/control-alt-delete.override
+  copy: src=control-alt-delete.override dest=/etc/init/control-alt-delete.override owner=root group=root 
   when: ctrlexists|success
 
 # disable ipv6
 - name: disable ipv6
-  lineinfile: dest=/ect/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no 
+  lineinfile: dest=/etc/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no 
 #-name: disable ipv6 (2)
-  lineinfile: dest=/ect/sysconfig/network state=present line=IPV6INIT=no 
+  lineinfile: dest=/etc/sysconfig/network state=present line=IPV6INIT=no 
 
-
-
-
-# set the ssh banner of the system
-
-# pam configuraion for ssh etc (- adclient!)
