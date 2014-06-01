@@ -37,6 +37,7 @@
     - nc
     - subversion
     - git
+  when: ansible_os_family == "RedHat"
 
 
 # disable root login via ssh and disable
@@ -55,12 +56,11 @@
   script: pbis-open-8.0.1.2029.linux.{{ ansible_architecture }}.rpm.sh --nox11 -- install
   when: ctrlexists|success
 
- # if file not exists we should set the inittab line with the module "lineinfile"
-
 # disable ipv6
-# lineinfile module
-# NETWORKING_IPV6=no
-# IPV6INIT=no
+-name: disable ipv6 
+  lineinfile: dest=/ect/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no 
+  lineinfile:  dest=/ect/sysconfig/network state=present line=IPV6INIT=no 
+
 
 
 
