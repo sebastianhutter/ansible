@@ -11,6 +11,10 @@
           password=$6$rounds=40000$VNQYBHdL90ev0M/n$MmWR26FLzZvfpX/Z5ViQ89hq6APCBd7zDmMryYkt6sya.zHAXGgKPubl01qtzhdUlAavKEToxT1JBbF9N5AFa1
           state=present
 
+# add public key for the user 
+- name: add public key for the sysprog user
+  authorized_key: user=sysprog key={{ lookup('file', 'sysprog.pub') }}
+
 # set the sudoers file for the user
 - name: copy sudoers.d file for administrative user account
   copy: src=sudoers_sysprog dest=/etc/sudoers.d/sysprog owner=root group=root 
