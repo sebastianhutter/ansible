@@ -1,0 +1,35 @@
+---
+
+#
+# default configuration for linux hosts
+#
+
+# create additional local user with sudo rights 
+## which variables could i use for that task?
+- name: create local user for administrative access
+  user: name:sysprog comment="administrative user account" 
+          password=$6$rounds=40000$VNQYBHdL90ev0M/n$MmWR26FLzZvfpX/Z5ViQ89hq6APCBd7zDmMryYkt6sya.zHAXGgKPubl01qtzhdUlAavKEToxT1JBbF9N5AFa1
+
+# set the sudoers file for the user
+- name: copy sudoers.d file for administrative user account
+  copy: src=sudoers_sysprog dest=/etc/sudoers.d/sysprog owner=root group=root 
+          mode=644 backup=yes
+
+# if it is a redhat based machine install the epel repositories
+- name: install the epel repository if its a redhat based machine
+
+# do a full system update
+
+# now install git and svn
+
+# install nc
+
+# disable root login via ssh and disable
+
+# disable ipv6
+
+#disable ctrl+lt+delete in the console 
+
+# set the ssh banner of the system
+
+# pam configuraion for ssh etc (- adclient!)
