@@ -18,12 +18,12 @@
   user: name=sysprog comment="administrative user account" 
           password=$6$rounds=40000$VNQYBHdL90ev0M/n$MmWR26FLzZvfpX/Z5ViQ89hq6APCBd7zDmMryYkt6sya.zHAXGgKPubl01qtzhdUlAavKEToxT1JBbF9N5AFa1
           state=present
-          groups='localadmin, remoteadmin'
+          groups='localadmin,remoteadmin'
 
 # add the ansible system user to the admin groups
 - name: add ansible user to admin groups
   user: name=ansible state=present
-          groups='localadmin, remoteadmin'
+          groups='localadmin,remoteadmin'
 
 # copy sudoers configuration for local administrators group
 - name: copy sudoers file for localadmin group
