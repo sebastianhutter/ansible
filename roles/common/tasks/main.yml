@@ -21,9 +21,10 @@
           groups='localadmin,remoteadmin'
 
 # add the ansible system user to the admin groups
+# do not add ansible to the local admin group or the user will be asked for the sudo password
 - name: add ansible user to admin groups
   user: name=ansible state=present
-          groups='localadmin,remoteadmin'
+          groups='remoteadmin'
 
 # copy sudoers configuration for local administrators group
 - name: copy sudoers file for localadmin group
