@@ -18,12 +18,12 @@
   rpm_key: state=present key=http://packages.elasticsearch.org/GPG-KEY-elasticsearch
 
 - name: copy the elasticsearch repository config to the node
-  copy: state=present src=elasticsearch.repo dest=/etc/yum.repos.d/ backup=yes
+  copy: src=elasticsearch.repo dest=/etc/yum.repos.d/ backup=yes
 
 # got the repo config file from here:
 # http://people.centos.org/tru/devtools-1.1/readme
 - name: copy the devtools repo configuration
-  copy: state=present src=devtools-1.1.repo dest=/etc/yum.repos.d/ backup=yes
+  copy: src=devtools-1.1.repo dest=/etc/yum.repos.d/ backup=yes
 
 #
 ## install the necessary pakacges
@@ -67,4 +67,5 @@
 
 - name: (auto)start postgresql service
   service: state=started enabled=yes name=postgresql-9.3
+
 
