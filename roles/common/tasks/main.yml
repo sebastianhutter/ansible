@@ -4,12 +4,31 @@
 # default configuration for linux hosts
 #
 
+# in addition to the user account we create two groups in which we add the administrators with sudo rights and ssh rights
+- name: create local group for users with sudo rights
+  group: name=localadmin state=present
+
+- name: create local group for users with ssh rights
+  group: name=remoteadmin state=present
+
+
 # create additional local user with sudo rights 
 ## which variables could i use for that task?
 - name: create local user for administrative access
   user: name=sysprog comment="administrative user account" 
           password=$6$rounds=40000$VNQYBHdL90ev0M/n$MmWR26FLzZvfpX/Z5ViQ89hq6APCBd7zDmMryYkt6sya.zHAXGgKPubl01qtzhdUlAavKEToxT1JBbF9N5AFa1
           state=present
+          groups='localadmin, remoteadmin'
+
+# add the ansible system user to the admin groups
+- name: add ansible user to admin groups
+  user: name=ansible state=present
+          groups='localadmin, remoteadmin'
+
+# copy sudoers configuration for local administrators group
+- name: copy sudoers file for localadmin group
+  copy: src=sudoers_localadmin dest=/etc/sudoers.d/localadmin owner=root group=root 
+          mode=644 backup=yes
 
 # add public key for the user 
 - name: add public key for the sysprog user
@@ -78,9 +97,21 @@
 - name: allow console login for specific users
   template: src=login.allow.j2 dest=/etc/pam.d/login.allow  mode=0600 owner=root group=root backup=yes
 
+- name: insert pam configuration in login module
+  lineinfile: dest=/etc/pam.d/login
+    insertafter='^account    required     pam_nologin.so$'
+    line='account    required     pam_listfile.so item=user sense=allow file=/etc/pam.d/login.allow onerr=fail quiet'
+    state=present
+
+# only allow the ssh login for a few specific user groups
+- name: allow shhd login for specific groups 
+  template: src=sshd.allow.j2 dest=/etc/pam.d/sshd.allow  mode=0600 owner=root group=root backup=yes
+
 # disable ipv6
-- name: disable ipv6
+- name: disable ipv6 (1/2)
   lineinfile: dest=/etc/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no
+
+- name: disable ipv6 (2/2)
   lineinfile: dest=/etc/sysconfig/network state=present line=IPV6INIT=no 
 
 

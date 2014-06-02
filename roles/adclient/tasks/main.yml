@@ -25,3 +25,5 @@
 - name: join the active directory into specific OU
   pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} 
   when: orgunit is defined
+
+# now after the domain join add the domain groups to be allowed to access ssh

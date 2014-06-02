@@ -3,3 +3,6 @@
 consoleusers:
   - root
   - sysprog
+
+sshdgroups:
+  - remoteadmin
