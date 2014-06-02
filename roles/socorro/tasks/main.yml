@@ -32,10 +32,10 @@
 - name: install necessary packages
   yum: state=latest name={{ item }}
   with_items:
-    - postgresql93-server
-    - postgresql93-plperl
-    - postgresql93-contrib
-    - postgresql93-devel
+    - postgresql94-server
+    - postgresql94-plperl
+    - postgresql94-contrib
+    - postgresql94-devel
     - make
     - rsync
     - gcc-c++
