@@ -76,7 +76,7 @@
 
 # only allow the console login for a few specific user accounts
 - name: allow console login for specific users
-  template: src=login.allow dest=/etc/pam.d/login.allow  mode=0600 owner=root group=root backup=yes
+  template: src=login.allow.j2 dest=/etc/pam.d/login.allow  mode=0600 owner=root group=root backup=yes
 
 # disable ipv6
 - name: disable ipv6

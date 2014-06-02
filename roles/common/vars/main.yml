@@ -1,4 +1,5 @@
 ---
-console-users:
+
+consoleusers:
   - root
   - sysprog
