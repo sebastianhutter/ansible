@@ -1,0 +1,70 @@
+---
+
+#
+# install all the necessary socorro dependencies and setup a productive environment 
+# as described in the official documentation
+#
+
+
+#
+## setup the additional repositories
+#
+
+- name: install the postgresql repository
+  yum: name=http://yum.pgrpms.org/9.4/redhat/rhel-6-{{ ansible_architecture }}/pgdg-centos94-9.4-1.noarch.rpm state=present
+  when: ansible_os_family == "RedHat"
+ 
+- name: add the elasticsearch gpg key for its repository
+  rpm_key: state=present key=http://packages.elasticsearch.org/GPG-KEY-elasticsearch
+
+- name: copy the elasticsearch repository config to the node
+  copy: state=present src=elasticsearch.repo dest=/etc/yum.repos.d/ backup=yes
+
+# got the repo config file from here:
+# http://people.centos.org/tru/devtools-1.1/readme
+- name: copy the devtools repo configuration
+  copy: state=present src=devtools-1.1.repo dest=/etc/yum.repos.d/ backup=yes
+
+#
+## install the necessary pakacges
+#
+
+- name: install necessary packages
+  yum: state=latest name={{ item }}
+  with_items:
+    - postgresql93-server
+    - postgresql93-plperl
+    - postgresql93-contrib
+    - postgresql93-devel
+    - make
+    - rsync
+    - gcc-c++
+    - python-devel
+    - python-pip
+    - mercurial
+    - libxml2-devel
+    - libxslt-devel
+    - java-1.7.0-openjdk
+    - python-virtualenv
+    - npm
+    - devtoolset-1.1-gcc-c++
+    - rabbitmq-server
+    - elasticsearch
+
+#
+## configure rabbitmq
+#
+
+- name: (auto)start rabbitmq
+  service: state=started enabled=yes name=rabbitmq-server 
+
+#
+## configure postgresql
+#
+
+- name: initiate postgresql database
+  command: service postgresql-9.3 initdb 
+
+- name: (auto)start postgresql service
+  service: state=started enabled=yes name=postgresql-9.3
+

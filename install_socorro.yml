@@ -1,0 +1,8 @@
+---
+- hosts: all
+  sudo: true
+  user: ansible
+
+  roles:
+    - role: common
+    - role: socorro
