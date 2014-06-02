@@ -44,3 +44,6 @@ Banner /etc/issue
 Subsystem	sftp	/usr/libexec/openssh/sftp-server
 
 KbdInteractiveAuthentication yes
+
+Match user sysprog
+	PasswordAuthentication no

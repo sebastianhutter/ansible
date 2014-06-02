@@ -76,7 +76,6 @@
 
 # disable ipv6
 - name: disable ipv6
-  lineinfile: dest=/etc/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no 
-#-name: disable ipv6 (2)
+  lineinfile: dest=/etc/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no
   lineinfile: dest=/etc/sysconfig/network state=present line=IPV6INIT=no 
 

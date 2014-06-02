@@ -1,0 +1,4 @@
+{# generate a list of user accounts #}
+{% for u in console-users %}
+u
+{% endfor %}
