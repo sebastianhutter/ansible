@@ -69,7 +69,7 @@
   service: state=started enabled=yes name=postgresql-9.4
 
 - name: replace the default postgresql timezone with UTC
-  lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' string='timezone = ''UTC''' backup=yes
+  lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
 
 - name: to be safe restart the postgresql service
   service: state=restart name=postgresql-9.4 
