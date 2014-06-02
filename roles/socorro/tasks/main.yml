@@ -63,9 +63,9 @@
 #
 
 - name: initiate postgresql database
-  command: service postgresql-9.3 initdb 
+  command: service postgresql-9.4 initdb 
 
 - name: (auto)start postgresql service
-  service: state=started enabled=yes name=postgresql-9.3
+  service: state=started enabled=yes name=postgresql-9.4
 
 
