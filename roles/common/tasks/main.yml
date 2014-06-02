@@ -13,7 +13,7 @@
 
 # add public key for the user 
 - name: add public key for the sysprog user
-  authorized_key: user=sysprog key="{{ lookup('file', 'sysprog.pub') }}"
+  authorized_key: user=sysprog key="{{ lookup('file', 'sysprog.pub') }}
 
 # set the sudoers file for the user
 - name: copy sudoers.d file for administrative user account
@@ -74,8 +74,13 @@
   copy: src=control-alt-delete.override dest=/etc/init/control-alt-delete.override owner=root group=root 
   when: ctrlexists|success
 
+# only allow the console login for a few specific user accounts
+- name: allow console login for specific users
+  template: src=login.allow dest=/etc/pam.d/login.allow  mode=0600 owner=root group=root backup=yes
+
 # disable ipv6
 - name: disable ipv6
   lineinfile: dest=/etc/sysconfig/network backup=yes state=present line=NETWORKING_IPV6=no
   lineinfile: dest=/etc/sysconfig/network state=present line=IPV6INIT=no 
+
 
