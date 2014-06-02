@@ -50,6 +50,13 @@
     - devtoolset-1.1-gcc-c++
     - rabbitmq-server
     - elasticsearch
+    - httpd
+    - mod_wsgi
+    - memcached
+    - daemonize
+    - mod_ssl
+    - subversion
+    - git
 
 #
 ## configure rabbitmq
@@ -72,7 +79,33 @@
   lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
 
 - name: to be safe restart the postgresql service
-  service: state=restart name=postgresql-9.4 
+  service: state=restarted name=postgresql-9.4 
 
+#
+## configure apache
+#
 
+      #### missing ####
 
+#
+## configure memcached
+#
+- name: (auto)start memchached
+  service: state=started enabled=yes name=memcached
+
+#
+## setup the user account and the necessary directories
+#
+- name: create socorro service user
+  user: name=socorro comment='service account for socorro' state=present
+
+- name: create socorro directories 
+  file: path={{ item.path }} state=directory owner={{ item.owner }} group={{ item.group }} mode={{ item.mode }}
+  with_items:
+    - { path: '/etc/socorro', owner: 'root', group: 'root', mode: '0755' } 
+    - { path: '/var/log/socorro', owner: 'socorro', group: 'socorro', mode: '0755' }
+    - { path: '/data', owner: 'root', group: 'root', mode: '0755' }
+    - { path: '/data/socorro', owner: 'socorro', group: 'root', mode: '0755' } 
+    - { path: '/home/socorro/primaryCrashStore', owner: 'apache', group: 'root', mode: '2775' }
+    - { path: '/home/socorro/fallback', owner: 'apache', group: 'root', mode: '2775' } 
+    - { path: '/home/socorro/persistent', owner: 'root', group: 'root', mode: '0755' }
