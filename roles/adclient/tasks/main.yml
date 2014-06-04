@@ -18,12 +18,14 @@
 
 # join the domain defined in the credentials vault
 - name: join the active directory
-  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} 
+  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} default=True
   when: orgunit is not defined 
 
 # join the domain defined in the credentials vault if an ou is specified
 - name: join the active directory into specific OU
-  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} 
+  pbis: domain={{ domain }} domuser={{ username }} dompass={{ password }} ou={{ orgunit }} default=True
   when: orgunit is defined
+
+
 
 # now after the domain join add the domain groups to be allowed to access ssh
