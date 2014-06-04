@@ -29,34 +29,39 @@
 ## install the necessary pakacges
 #
 
-- name: install necessary packages
-  yum: state=latest name={{ item }}
-  with_items:
-    - postgresql94-server
-    - postgresql94-plperl
-    - postgresql94-contrib
-    - postgresql94-devel
-    - make
-    - rsync
-    - gcc-c++
-    - python-devel
-    - python-pip
-    - mercurial
-    - libxml2-devel
-    - libxslt-devel
-    - java-1.7.0-openjdk
-    - python-virtualenv
-    - npm
-    - devtoolset-1.1-gcc-c++
-    - rabbitmq-server
-    - elasticsearch
-    - httpd
-    - mod_wsgi
-    - memcached
-    - daemonize
-    - mod_ssl
-    - subversion
-    - git
+# ########
+# ## excluded for testing purposes
+# ########
+# ########
+
+# - name: install necessary packages
+#   yum: state=latest name={{ item }}
+#   with_items:
+#     - postgresql94-server
+#     - postgresql94-plperl
+#     - postgresql94-contrib
+#     - postgresql94-devel
+#     - make
+#     - rsync
+#     - gcc-c++
+#     - python-devel
+#     - python-pip
+#     - mercurial
+#     - libxml2-devel
+#     - libxslt-devel
+#     - java-1.7.0-openjdk
+#     - python-virtualenv
+#     - npm
+#     - devtoolset-1.1-gcc-c++
+#     - rabbitmq-server
+#     - elasticsearch
+#     - httpd
+#     - mod_wsgi
+#     - memcached
+#     - daemonize
+#     - mod_ssl
+#     - subversion
+#     - git
 
 #
 ## configure rabbitmq
@@ -80,14 +85,6 @@
 - name: replace the default postgresql timezone with UTC
   lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
   notify: restart postgresql
-
-
-
-#
-## configure apache
-#
-
-      #### missing ####
 
 #
 ## configure memcached
@@ -122,3 +119,21 @@
 
 - name: run make inside the checkout directory as the socorro service user
   command: sudo -u socorro -s make install chdir=/tmp/socorro 
+
+#
+## copy the configuration files to the soccorro system directory
+#
+
+#
+## install the socorro cron job manager
+#
+
+#
+## setup the socorro services
+#
+
+#
+## configure apache
+#
+
+      #### missing ####
