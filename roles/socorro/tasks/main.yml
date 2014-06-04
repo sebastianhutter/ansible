@@ -62,6 +62,7 @@
 #     - mod_ssl
 #     - subversion
 #     - git
+#     - nodejs-less
 
 #
 ## configure rabbitmq
@@ -116,6 +117,8 @@
 
 - name: checkout the socorro source
   git: repo=https://github.com/mozilla/socorro dest=/tmp/socorro
+  sudo: yes
+  sudo_user: socorro
 
 - name: run make inside the checkout directory as the socorro service user
   command: /usr/bin/sudo -u socorro -s /usr/bin/make install chdir=/tmp/socorro 
