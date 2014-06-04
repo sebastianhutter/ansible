@@ -1,0 +1,4 @@
+---
+
+- name: restart postgresql
+  service: state=restarted name=postgresql-9.4 

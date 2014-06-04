@@ -61,6 +61,8 @@
     - nc
     - subversion
     - git
+    # necessary for selinux management with ansible
+    - libselinux-python
   when: ansible_os_family == "RedHat"
 
 # reconfigure sshd
