@@ -75,15 +75,9 @@ def leave(domuser, dompass, domainjoin_cmd, result, module):
 
 def assumedefaultdomain(assume):
     import os.path 
-
-    try:
-      # just assume that the configuration command is in /opt/pbis 
-      assume_command = "/opt/pbis/bin/config AssumeDefaultDomain %s" % (assume)
-
-      rc, out, err = module.run_command(assume_command, check_rc=True)
-    
-    result['changed'] = True
-    result['msg'] = out
+    # just assume that the configuration command is in /opt/pbis 
+    assume_command = "/opt/pbis/bin/config AssumeDefaultDomain %s" % (assume)
+    rc, out, err = module.run_command(assume_command, check_rc=True)
     
 def is_member(domainjoin_cmd, result, module):
     check_command = "%s query" % (domainjoin_cmd)
