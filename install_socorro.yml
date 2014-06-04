@@ -4,5 +4,6 @@
   user: ansible
 
   roles:
-    - role: common
+    #- role: common
+    #- role: adclient
     - role: socorro
