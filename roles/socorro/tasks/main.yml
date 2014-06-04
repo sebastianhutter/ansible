@@ -118,7 +118,7 @@
   git: repo=https://github.com/mozilla/socorro dest=/tmp/socorro
 
 - name: run make inside the checkout directory as the socorro service user
-  command: sudo -u socorro -s make install chdir=/tmp/socorro 
+  command: /usr/bin/sudo -u socorro -s /usr/bin/make install chdir=/tmp/socorro 
 
 #
 ## copy the configuration files to the soccorro system directory
