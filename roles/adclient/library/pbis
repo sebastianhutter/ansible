@@ -126,6 +126,7 @@ def main():
     dompass = module.params['dompass']
     ou = module.params['ou']
     state = module.params['state']
+    default = module.params['default']
 
     # set the default result
     result = {'state': state, 'changed': False, 'msg': ''}
