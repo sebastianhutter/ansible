@@ -120,6 +120,9 @@
   #sudo: yes
   #sudo_user: socorro
 
+- name: create pg_init softlink for postgresql 9.4
+  file: src=/usr/pgsql-9.4/bin/pg_config dest=/usr/bin/pg_config state=link
+
 - name: run make inside the checkout directory as the socorro service user
   command: make install chdir=/tmp/socorro 
 
