@@ -4,6 +4,17 @@
 # default configuration for linux hosts
 #
 
+# install some default software packages
+- name: install must have software (redhat)
+  yum: name={{ item }} state=latest
+  with_items:
+    - nc
+    - subversion
+    - git
+    # necessary for selinux management with ansible
+    - libselinux-python
+  when: ansible_os_family == "RedHat"
+
 # in addition to the user account we create two groups in which we add the administrators with sudo rights and ssh rights
 - name: create local group for users with sudo rights
   group: name=localadmin state=present
@@ -54,16 +65,7 @@
   apt: upgrade=dist
   when: ansible_os_family == "Debian"
 
-# now install some default software packages
-- name: install must have software (redhat)
-  yum: name={{ item }} state=latest
-  with_items:
-    - nc
-    - subversion
-    - git
-    # necessary for selinux management with ansible
-    - libselinux-python
-  when: ansible_os_family == "RedHat"
+
 
 # reconfigure sshd
 - name: reconfigure sshd daemon
