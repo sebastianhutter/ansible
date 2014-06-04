@@ -68,6 +68,18 @@ def leave(domuser, dompass, domainjoin_cmd, result, module):
     result['changed'] = True
     result['state'] = 'absent'
     result['msg'] = out
+
+def assumedefaultdomain(assume):
+    import os.path 
+
+    try:
+      # just assume that the configuration command is in /opt/pbis 
+      assume_command = "/opt/pbis/bin/config AssumeDefaultDomain %s" % (assume)
+
+      rc, out, err = module.run_command(assume_command, check_rc=True)
+    
+    result['changed'] = True
+    result['msg'] = out
     
 def is_member(domainjoin_cmd, result, module):
     check_command = "%s query" % (domainjoin_cmd)
@@ -99,6 +111,8 @@ def main():
                        default='present',
                        choices=['present', 'absent'],
                        type='str'),
+            default=dict(required=False,
+                          choices=BOOLEANS),
         ),
         supports_check_mode=False
     )
@@ -107,6 +121,7 @@ def main():
         domainjoin_cmd = module.get_bin_path('domainjoin-cli', True)
     except:
         module.fail_json(msg="could not find domainjoin-cli. is pbis installed?")
+
 
     domain = module.params['domain']
     domuser = module.params['domuser']
@@ -121,6 +136,8 @@ def main():
     
     if state == 'present' and ismember == False:
         join(domain, domuser, dompass, ou, domainjoin_cmd, result, module)
+        if default == True:
+          assumedefaultdomain('true')
     if state == 'absent' and ismember == True:
         leave(domuser, dompass, domainjoin_cmd, result, module)
 
