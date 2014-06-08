@@ -5,6 +5,20 @@
 # as described in the official documentation
 #
 
+##
+## due to the many command cp instructions this 
+## script is no idempotent.
+##
+##
+## we need to change the basic setup of the script
+## maybe with rsync?
+
+
+
+#
+## include vault 
+#
+- include_vars: secrets.yml
 
 #
 ## setup the additional repositories
@@ -13,7 +27,7 @@
 - name: install the postgresql repository
   yum: name=http://yum.pgrpms.org/9.4/redhat/rhel-6-{{ ansible_architecture }}/pgdg-centos94-9.4-1.noarch.rpm state=present
   when: ansible_os_family == "RedHat"
- 
+
 - name: add the elasticsearch gpg key for its repository
   rpm_key: state=present key=http://packages.elasticsearch.org/GPG-KEY-elasticsearch
 
@@ -81,11 +95,19 @@
 - name: (auto)start postgresql service
   service: state=started enabled=yes name=postgresql-9.4
 
+- name: include the socorro vault with passwords etc.
+
 # will always trigger the handle restart postgresql because the regexp always stays true
 # need to find a better way to solve this.
 - name: replace the default postgresql timezone with UTC
   lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
   notify: restart postgresql
+
+- name: create postgresql database
+  postgresql_db: name={{ datbase }}
+
+- name: create database user and set privileges
+  postgresql_user: db={{ database }} name={{ dbname }} password={{ dbpass }} priv=ALL/{{ database }}:ALL
 
 #
 ## configure memcached
@@ -136,17 +158,69 @@
 #
 ## copy the configuration files to the soccorro system directory
 #
+- name: copy configuration files
+  command: cp config/*.ini-dist /etc/scorro chdir=/tmp/socorro
+
+- name: rename the configuration files
+  command: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
+
+- name: change collector webserver to apache
+  lineinfile: "dest=/etc/socorro/collector.ini state=present regexp='wsgi_server_class='''socorro.webapi.servers.CherryPy''' line='''socorro.webapi.servers.ApacheModWSGI'''
+
+- name: change middleware webserver to apache
+  lineinfile: "dest=/etc/socorro/middleware.ini state=present regexp='wsgi_server_class='''socorro.webapi.servers.CherryPy''' line='''socorro.webapi.servers.ApacheModWSGI'''
 
 #
 ## install the socorro cron job manager
 #
+- name: copy socorrorc file
+  command: cp scripts/crons/scorrorc /etc/socorro chdir=/tmp/socorro
+
+- name: copy crontab
+  command: cp config/crontab-dist /etc/cron.d/socorro chdir=/tmp/socorro
 
 #
 ## setup the socorro services
 #
+- name: copy the socorro processor init.d script
+  command: cp scripts/init.d/socorro-processor /etc/init.d/
+
+- name: enable socorro processor service
+  service: enabled=yes name=socorro-processor state=started
+
 
 #
-## configure apache
+## configure djange and apache
 #
 
-      #### missing ####
+# apache is configured via templates. right now not a single variable
+# is used in them but that will change with the next version of the socorro
+# role
+
+- name: copy django configuration to the host
+  template: src=local.py.j2 dest=/data/socorro/webapp-django/crashstats/settings/local.py backup=yes
+
+- name: sync django databases
+  django_manage: command=syncdb 
+    app_path=/data/socorro/webapp-django #virtualenv=/data/socorro/webapp-django/virtualenv
+
+- name: copy apache configuration to host
+  template: src=socorro.conf.j2 dest=/etc/httpd/conf.d/socorro.conf backup=yes 
+  notify: restart apache
+
+- name: create htpasswd user for bpapi
+  htpasswd: path=/data/socorro/application/.htpasswd state=present name={{ htuser }} password={{ htpass }}
+
+# django configuration file
+# - database
+# - secret string
+# - administrators
+#
+# htpasswd for bpapi
+
+
+#
+## configure local iptables firewall to enable access to all services
+#
+
+# tcp 80, 8883, 8125, 5432
