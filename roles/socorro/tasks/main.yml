@@ -216,11 +216,11 @@
 - name: open up iptables firewall for socorro
 	ufw: rule=allow port={{ item }} proto=tcp
 	with_items: 
-		- 80
-		- 8000
-		- 8883
-		- 8125
-		# not sure if we need to open the postgresql port
-		- 5432
+	- 80
+	- 8000
+	- 8883
+	- 8125
+	# not sure if we need to open the postgresql port
+	- 5432
 
 # tcp 80, 8000,  8883, 8125, 5432
