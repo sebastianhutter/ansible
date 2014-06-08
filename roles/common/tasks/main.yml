@@ -102,20 +102,19 @@
 - name: allow console login for specific users
   template: src=login.allow.j2 dest=/etc/pam.d/login.allow  mode=0600 owner=root group=root backup=yes
 
-- name: insert pam configuration in login module
-  lineinfile: dest=/etc/pam.d/login
-    insertafter='^account    required     pam_nologin.so$'
-    line='account    required     pam_listfile.so item=user sense=allow file=/etc/pam.d/login.allow onerr=fail quiet'
-    state=present
-
 - name: insert pam configuration in sshd module
   lineinfile: dest=/etc/pam.d/sshd
     insertafter='^account    required     pam_nologin.so$'
     line='account    required     pam_listfile.so item=group sense=allow file=/etc/pam.d/sshd.allow onerr=fail quiet'
     state=present
 
+- name: insert pam configuration in login module
+  lineinfile: dest=/etc/pam.d/login
+    insertafter='^account    required     pam_nologin.so$'
+    line='account    required     pam_listfile.so item=user sense=allow file=/etc/pam.d/login.allow onerr=fail quiet'
+    state=present
 # only allow the ssh login for a few specific user groups
-- name: allow shhd login for specific groups 
+- name: allow sshd login for specific groups 
   template: src=sshd.allow.j2 dest=/etc/pam.d/sshd.allow  mode=0600 owner=root group=root backup=yes
 
 # disable ipv6
