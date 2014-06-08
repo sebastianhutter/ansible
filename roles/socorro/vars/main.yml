@@ -2,7 +2,7 @@
 
 domain: ftss.com
 
-database: socorro
+database: socorrodb
 
 socorroadmins:
 - { name: 'Sebastian Hutter', mail: 'mail@sebastian-hutter.ch' }
