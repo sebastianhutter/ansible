@@ -114,7 +114,7 @@
 - name: create database user and set privileges
   sudo_user: postgres
   sudo: yes
-  postgresql_user: db={{ database }} name={{ dbname }} password={{ dbpass }} priv=ALL/{{ database }}:ALL
+  postgresql_user: db={{ database }} name={{ dbuser }} password={{ dbpass }} priv=ALL/{{ database }}:ALL
 
 #- name: remove temporary super user access 
 #  lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer'
