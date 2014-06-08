@@ -48,35 +48,35 @@
 # ########
 # ########
 
-# - name: install necessary packages
-#   yum: state=latest name={{ item }}
-#   with_items:
-#     - postgresql94-server
-#     - postgresql94-plperl
-#     - postgresql94-contrib
-#     - postgresql94-devel
-#     - make
-#     - rsync
-#     - gcc-c++
-#     - python-devel
-#     - python-pip
-#     - mercurial
-#     - libxml2-devel
-#     - libxslt-devel
-#     - java-1.7.0-openjdk
-#     - python-virtualenv
-#     - npm
-#     - devtoolset-1.1-gcc-c++
-#     - rabbitmq-server
-#     - elasticsearch
-#     - httpd
-#     - mod_wsgi
-#     - memcached
-#     - daemonize
-#     - mod_ssl
-#     - subversion
-#     - git
-#     - nodejs-less
+- name: install necessary packages
+  yum: state=latest name={{ item }}
+  with_items:
+    - postgresql94-server
+    - postgresql94-plperl
+    - postgresql94-contrib
+    - postgresql94-devel
+    - make
+    - rsync
+    - gcc-c++
+    - python-devel
+    - python-pip
+    - mercurial
+    - libxml2-devel
+    - libxslt-devel
+    - java-1.7.0-openjdk
+    - python-virtualenv
+    - npm
+    - devtoolset-1.1-gcc-c++
+    - rabbitmq-server
+    - elasticsearch
+    - httpd
+    - mod_wsgi
+    - memcached
+    - daemonize
+    - mod_ssl
+    - subversion
+    - git
+    - nodejs-less
 
 #
 ## configure rabbitmq
