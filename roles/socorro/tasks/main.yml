@@ -112,6 +112,8 @@
   postgresql_db: name={{ database }}
 
 - name: create database user and set privileges
+  sudo_user: postgres
+  sudo: yes
   postgresql_user: db={{ database }} name={{ dbname }} password={{ dbpass }} priv=ALL/{{ database }}:ALL
 
 #- name: remove temporary super user access 
