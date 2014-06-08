@@ -165,10 +165,10 @@
   command: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
 
 - name: change collector webserver to apache
-  lineinfile: "dest=/etc/socorro/collector.ini state=present regexp='wsgi_server_class=''socorro.webapi.servers.CherryPy'' line=''socorro.webapi.servers.ApacheModWSGI''
+  lineinfile: dest=/etc/socorro/collector.ini state=present regexp='wsgi_server_class='''socorro.webapi.servers.CherryPy'''' line=''''socorro.webapi.servers.ApacheModWSGI''''
 
 - name: change middleware webserver to apache
-  lineinfile: "dest=/etc/socorro/middleware.ini state=present regexp='wsgi_server_class=''socorro.webapi.servers.CherryPy'' line=''socorro.webapi.servers.ApacheModWSGI''
+  lineinfile: dest=/etc/socorro/middleware.ini state=present regexp='wsgi_server_class='''socorro.webapi.servers.CherryPy'''' line=''''socorro.webapi.servers.ApacheModWSGI''''
 
 #
 ## install the socorro cron job manager
