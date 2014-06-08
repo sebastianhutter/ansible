@@ -91,7 +91,7 @@
 #
 
 - name: temporary allow the local db superuser auth without password
-	lineinfile: state=present insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' backup=yes
+  lineinfile: state=present insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' backup=yes
 
 - name: initiate postgresql database
   command: service postgresql-9.4 initdb 
@@ -113,7 +113,7 @@
   postgresql_user: db={{ database }} name={{ dbname }} password={{ dbpass }} priv=ALL/{{ database }}:ALL
 
 - name: remove temporary super user access 
- 	lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer'
+  lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer'
 
  
 
