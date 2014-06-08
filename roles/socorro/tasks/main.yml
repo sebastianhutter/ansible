@@ -227,14 +227,14 @@
 ## configure local iptables firewall to enable access to all services
 #
 
-- name: open up iptables firewall for socorro
-  ufw: rule=allow port={{ item }} proto=tcp
-  with_items:
-  - 80
-  - 8000
-  - 8883
-  - 8125
-  - 5432
+#- name: open up iptables firewall for socorro
+#  ufw: rule=allow port={{ item }} proto=tcp
+#  with_items:
+#  - 80
+#  - 8000
+#  - 8883
+#  - 8125
+#  - 5432
 
 # tcp 80, 8000,  8883, 8125, 5432
 # not sure if we need the postgresql port 5432
