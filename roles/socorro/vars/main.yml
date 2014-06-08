@@ -6,5 +6,3 @@ database: socorro
 
 socorroadmins:
 - { name: 'Sebastian Hutter', mail: 'mail@sebastian-hutter.ch' }
-
-- include: secrets.yml
