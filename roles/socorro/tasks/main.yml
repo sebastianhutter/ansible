@@ -195,7 +195,7 @@
 ## setup the socorro services
 #
 - name: copy the socorro processor init.d script
-  command: cp scripts/init.d/socorro-processor /etc/init.d/
+  command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir=/tmp/socorro
 
 - name: enable socorro processor service
   service: enabled=yes name=socorro-processor state=started
