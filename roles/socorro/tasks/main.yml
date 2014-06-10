@@ -100,6 +100,7 @@
 - name: initiate postgresql database
   command: service postgresql-9.4 initdb 
 
+# linereplacemoent not working
 - name: replace the default postgresql timezone with UTC
   lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/postgresql.conf 
               regexp='^(timezone=).*$' line='\1"UTC"'
@@ -107,7 +108,7 @@
 
 - name: set the default authentication method to md5
   lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/pg_hba.conf  
-              regexp='^(.*)indent$' line='\1md5'
+              regexp='^(.*)ident$' line='\1md5'
   notify: restart postgresql
 
 - name: (auto)start postgresql service
