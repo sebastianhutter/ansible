@@ -102,7 +102,7 @@
 
 # linereplacemoent not working
 - name: replace the default postgresql timezone with UTC
-  template: backup=yes src=postgresql.j2 dest=/var/lib/pgsql/9.4/data/postgresql.conf  
+  template: backup=yes src=postgresql.conf.j2 dest=/var/lib/pgsql/9.4/data/postgresql.conf  
             owner=postgres group=postgres mode=0600
 #  lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/postgresql.conf 
 #              regexp='^(timezone=).*$' line='\1"UTC"'
