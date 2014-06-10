@@ -86,6 +86,7 @@ ADMINS = (
 	{% for a in socorroadmins %}
 		('{{ a.name }}', '{{ a.mail }}'),
     # ('Your Name', 'your_email@domain.com'),
+  {% endfor %}
 )
 MANAGERS = ADMINS
 
