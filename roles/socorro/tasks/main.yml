@@ -103,11 +103,13 @@
 # will always trigger the handle restart postgresql because the regexp always stays true
 # need to find a better way to solve this.
 - name: replace the default postgresql timezone with UTC
-  lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
+  lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/postgresql.conf 
+              regexp='^(timezone=).*$' line='\1"UTC"'
   notify: restart postgresql
 
 - name: set the default authentication method to md5
-  lineinfile: state=present dest=/var/lib/pgsql/9.4/data/pg_hba.conf regexp='indent$' line='md5' backup=yes
+  lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/pg_hba.conf  
+              regexp='^(.*)indent$' line='\1md5'
   notify: restart postgresql
 
 - name: create postgresql database
