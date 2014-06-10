@@ -93,11 +93,6 @@
 #- name: temporary allow the local db superuser auth without password
 #  lineinfile: state=present insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' backup=yes
 
-- name: initiate postgresql database
-  command: service postgresql-9.4 initdb 
-
-- name: (auto)start postgresql service
-  service: state=started enabled=yes name=postgresql-9.4
 
 
 # will always trigger the handle restart postgresql because the regexp always stays true
@@ -111,6 +106,12 @@
   lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/pg_hba.conf  
               regexp='^(.*)indent$' line='\1md5'
   notify: restart postgresql
+
+- name: initiate postgresql database
+  command: service postgresql-9.4 initdb 
+
+- name: (auto)start postgresql service
+  service: state=started enabled=yes name=postgresql-9.4
 
 - name: create postgresql database
   sudo_user: postgres
