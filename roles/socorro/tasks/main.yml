@@ -168,11 +168,13 @@
 #
 ## copy the configuration files to the soccorro system directory
 #
+
+# the shell module is necessery because of the wildcaqrds. the command module does not support wildcardsß
 - name: copy configuration files
-  command: cp config/*.ini-dist /etc/socorro/ chdir=/tmp/socorro
+  shell: cp config/*.ini-dist /etc/socorro/ chdir=/tmp/socorro
 
 - name: rename the configuration files
-  command: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
+  shell: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
 
 - name: change collector webserver to apache
   lineinfile: dest=/etc/socorro/collector.ini state=present regexp='wsgi_server_class='''socorro.webapi.servers.CherryPy''' line='''socorro.webapi.servers.ApacheModWSGI'''
