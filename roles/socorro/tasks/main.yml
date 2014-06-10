@@ -186,7 +186,7 @@
 ## install the socorro cron job manager
 #
 - name: copy socorrorc file
-  command: cp scripts/crons/scorrorc /etc/socorro chdir=/tmp/socorro
+  command: cp scripts/crons/socorrorc /etc/socorro chdir=/tmp/socorro
 
 - name: copy crontab
   command: cp config/crontab-dist /etc/cron.d/socorro chdir=/tmp/socorro
