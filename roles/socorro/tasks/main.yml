@@ -77,7 +77,7 @@
 #    - subversion
 #    - git
 #    - nodejs-less
-#	  - python-psycopg2
+#	   - python-psycopg2
 
 #
 ## configure rabbitmq
@@ -117,9 +117,7 @@
   postgresql_user: db={{ database }} name={{ dbuser }} password={{ dbpass }} priv=ALL
 
 #- name: remove temporary super user access 
-#  lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer'
-
- 
+#  lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' 
 
 #
 ## configure memcached
@@ -171,7 +169,7 @@
 ## copy the configuration files to the soccorro system directory
 #
 - name: copy configuration files
-  command: cp config/*.ini-dist /etc/scorro chdir=/tmp/socorro
+  command: cp config/*.ini-dist /etc/socorro/ chdir=/tmp/socorro
 
 - name: rename the configuration files
   command: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
