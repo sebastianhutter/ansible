@@ -106,6 +106,10 @@
   lineinfile: state=present dest=/var/lib/pgsql/9.4/data/postgresql.conf regexp='^timezone' line='timezone = ''UTC''' backup=yes
   notify: restart postgresql
 
+- name: set the default authentication method to md5
+  lineinfile: state=present dest=/var/lib/pgsql/9.4/data/pg_hba.conf regexp='indent$' line='md5' backup=yes
+  notify: restart postgresql
+
 - name: create postgresql database
   sudo_user: postgres
   sudo: yes
