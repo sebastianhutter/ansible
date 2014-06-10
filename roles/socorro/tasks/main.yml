@@ -174,7 +174,7 @@
   shell: cp config/*.ini-dist /etc/socorro/ chdir=/tmp/socorro
 
 - name: rename the configuration files
-  shell: rename 's/\.ini-dist$/\.ini/' *.ini-dist chdir=/etc/socorro
+  shell: rename .ini-dist .ini *.ini-dist chdir=/etc/socorro
 
 - name: change collector webserver to apache
   lineinfile: dest=/etc/socorro/collector.ini state=present regexp=socorro.webapi.servers.CherryPy line=socorro.webapi.servers.ApacheModWSGI
