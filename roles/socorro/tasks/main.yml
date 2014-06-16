@@ -80,6 +80,14 @@
 #	   - python-psycopg2
 
 #
+## set python dependencies
+#
+- name: install python alembic
+  pip: state=present name={{ item }}
+  with_items:
+    - alembic
+    - configman
+#
 ## configure rabbitmq
 #
 
@@ -160,10 +168,20 @@
 ## download and install soccoro for production
 #
 
+
+#
+# run as sudo
+# with checkout var
+#
+
 - name: checkout the socorro source
-  git: repo=https://github.com/mozilla/socorro dest=/tmp/socorro
+  git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
   #sudo: yes
   #sudo_user: socorro
+
+#
+# instead of setting link set global path variable with pg9.4
+# 
 
 - name: create pg_init softlink for postgresql 9.4
   file: src=/usr/pgsql-9.4/bin/pg_config dest=/usr/bin/pg_config state=link
@@ -171,12 +189,17 @@
 #- name: enable devtoolset-1
 #  command: scl enable devtoolset-1.1 bash
 
+# run the command as sudo
+
 - name: make breakpad and stackwalker in the checkout directory
-  command: chdir=/tmp/socorro scl enable devtoolset-1.1 "make breakpad stackwalker" 
+  command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
+
+
+# run the command as sudo
 
 # some issues to run make as sudo socorro ... maybe we need to run goit alreadz as socorro
 - name: run make inside the checkout directory as the socorro service user
-  command: make install chdir=/tmp/socorro 
+  command: make install chdir={{ checkout }} 
 
 #
 ## copy the configuration files to the soccorro system directory
@@ -184,7 +207,7 @@
 
 # the shell module is necessery because of the wildcaqrds. the command module does not support wildcardsß
 - name: copy configuration files
-  shell: cp config/*.ini-dist /etc/socorro/ chdir=/tmp/socorro
+  shell: cp config/*.ini-dist /etc/socorro/ chdir={{ checkout }}
 
 - name: rename the configuration files
   shell: rename .ini-dist .ini *.ini-dist chdir=/etc/socorro
@@ -199,16 +222,16 @@
 ## install the socorro cron job manager
 #
 - name: copy socorrorc file
-  command: cp scripts/crons/socorrorc /etc/socorro chdir=/tmp/socorro
+  command: cp scripts/crons/socorrorc /etc/socorro chdir={{ checkout }}
 
 - name: copy crontab
-  command: cp config/crontab-dist /etc/cron.d/socorro chdir=/tmp/socorro
+  command: cp config/crontab-dist /etc/cron.d/socorro chdir={{ checkout }}
 
 #
 ## setup the socorro services
 #
 - name: copy the socorro processor init.d script
-  command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir=/tmp/socorro
+  command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir={{ checkout }}
 
 - name: enable socorro processor service
   service: enabled=yes name=socorro-processor state=started
@@ -227,7 +250,7 @@
 
 - name: sync django databases
   django_manage: command=syncdb 
-    app_path=/data/socorro/webapp-django #virtualenv=/data/socorro/webapp-django/virtualenv
+    app_path=/data/socorro/webapp-django #virtualenv=/data/socorro/webapp-django/virtualenv 
 
 - name: copy apache configuration to host
   template: src=socorro.conf.j2 dest=/etc/httpd/conf.d/socorro.conf backup=yes 

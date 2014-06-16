@@ -1,5 +1,7 @@
 ---
 
+checkout: /home/socorro/release
+
 domain: ftss.com
 
 database: socorrodb
