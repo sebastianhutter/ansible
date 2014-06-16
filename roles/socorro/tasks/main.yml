@@ -203,6 +203,7 @@
 - name: run make inside the checkout directory as the socorro service user
   command: make install chdir={{ checkout }} 
 
+  sudo_user: socorro
 #
 ## copy the configuration files to the soccorro system directory
 #
