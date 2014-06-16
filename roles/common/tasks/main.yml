@@ -8,11 +8,16 @@
 - name: install must have software (redhat)
   yum: name={{ item }} state=latest
   with_items:
+    # swiss army knif of networking
     - nc
+    # subversion
     - subversion
+    # git
     - git
     # necessary for selinux management with ansible
     - libselinux-python
+    # get some nice network traffic
+    - iftop
   when: ansible_os_family == "RedHat"
 
 # in addition to the user account we create two groups in which we add the administrators with sudo rights and ssh rights
