@@ -176,15 +176,17 @@
 
 - name: checkout the socorro source
   git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
-  #sudo: yes
-  #sudo_user: socorro
+  sudo: yes
+  sudo_user: socorro
 
 #
 # instead of setting link set global path variable with pg9.4
 # 
 
-- name: create pg_init softlink for postgresql 9.4
-  file: src=/usr/pgsql-9.4/bin/pg_config dest=/usr/bin/pg_config state=link
+#- name: create pg_init softlink for postgresql 9.4
+#  file: src=/usr/pgsql-9.4/bin/pg_config dest=/usr/bin/pg_config state=link
+- name: add postgresql to path
+  file: src=pgsql_path.sh  dest=/etc/profile.d/pgsql_path.sh owner=root group=root mode=0644 backup=yes 
 
 #- name: enable devtoolset-1
 #  command: scl enable devtoolset-1.1 bash
