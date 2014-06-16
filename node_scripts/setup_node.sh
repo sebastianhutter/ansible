@@ -64,6 +64,7 @@ echo $USERNAME ALL=\(ALL\) NOPASSWD:ALL >> $SUDOERSFILE
 #	exit 5
 #fi
 
+
 # create the ssh directory for the ansible user
 mkdir $ANSIBLEHOME/.ssh
 if [[ $? -ne 0 ]]; then
@@ -88,3 +89,12 @@ if [[ $? -ne 0 ]]; then
 	echo "could not change permissions on .ssh directory. aborting ..." 1>&2
 	exit 8
 fi
+
+# set read permission for everyone on the ansible home directory
+# this is necessary to enable sudo for other users
+chmod 0755 $ANSIBLEHOME
+if [[ $? -ne 0 ]]; then
+	echo "could not change permissions on the ansible home directory. aborting ..." 1>&2
+	exit 8
+fi
+
