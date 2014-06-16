@@ -176,8 +176,8 @@
 
 - name: checkout the socorro source
   git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
-  su: yes
-  su_user: socorro
+  sudo: yes
+  sudo_user: socorro
 
 #
 # instead of setting link set global path variable with pg9.4
