@@ -195,14 +195,15 @@
 
 - name: make breakpad and stackwalker in the checkout directory
   command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
-
+  sudo: yes
+  sudo_user: socorro
 
 # run the command as sudo
 
 # some issues to run make as sudo socorro ... maybe we need to run goit alreadz as socorro
 - name: run make inside the checkout directory as the socorro service user
   command: make install chdir={{ checkout }} 
-
+  sudo: yes
   sudo_user: socorro
 #
 ## copy the configuration files to the soccorro system directory
