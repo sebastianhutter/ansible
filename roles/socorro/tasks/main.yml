@@ -48,37 +48,37 @@
 # ########
 # ########
 
-#- name: install necessary packages
-#	  yum: state=latest name={{ item }}
-#	  with_items:
-#    - postgresql94-server
-#    - postgresql94-plperl
-#    - postgresql94-contrib
-#    - postgresql94-devel
-#    - postgresql94
-#    - make
-#    - rsync
-#    - gcc-c++
-#    - python-devel
-#    - python-pip
-#    - mercurial
-#    - libxml2-devel
-#    - libxslt-devel
-#    - java-1.7.0-openjdk
-#    - python-virtualenv
-#    - npm
-#    - devtoolset-1.1-gcc-c++
-#    - rabbitmq-server
-#    - elasticsearch
-#    - httpd
-#    - mod_wsgi
-#    - memcached
-#    - daemonize
-#    - mod_ssl
-#    - subversion
-#    - git
-#    - nodejs-less
-#	   - python-psycopg2
+- name: install necessary packages
+	  yum: state=latest name={{ item }}
+	  with_items:
+   - postgresql94-server
+   - postgresql94-plperl
+   - postgresql94-contrib
+   - postgresql94-devel
+   - postgresql94
+   - make
+   - rsync
+   - gcc-c++
+   - python-devel
+   - python-pip
+   - mercurial
+   - libxml2-devel
+   - libxslt-devel
+   - java-1.7.0-openjdk
+   - python-virtualenv
+   - npm
+   - devtoolset-1.1-gcc-c++
+   - rabbitmq-server
+   - elasticsearch
+   - httpd
+   - mod_wsgi
+   - memcached
+   - daemonize
+   - mod_ssl
+   - subversion
+   - git
+   - nodejs-less
+	 - python-psycopg2
 
 #
 ## set python dependencies
@@ -89,6 +89,10 @@
     - alembic
     - configman
     - psycopg2
+    - django-waffle
+    - raven
+    - django-jingo-offline-compressor
+    - passlib
 #
 ## configure rabbitmq
 #
@@ -199,6 +203,10 @@
   command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
   sudo: yes
   sudo_user: socorro
+  environment:
+    # we need to add the path to the command because ssh does not provide a full path variable
+    PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
+
 
 # run the command as sudo
 
@@ -261,6 +269,8 @@
 - name: copy apache configuration to host
   template: src=socorro.conf.j2 dest=/etc/httpd/conf.d/socorro.conf backup=yes 
   notify: restart apache
+
+# apache restart didnt work out ...
 
 - name: create htpasswd user for bpapi
   htpasswd: path=/data/socorro/application/.htpasswd state=present name={{ htuser }} password={{ htpass }}
