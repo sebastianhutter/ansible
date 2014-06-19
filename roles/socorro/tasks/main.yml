@@ -78,7 +78,7 @@
     - subversion
     - git
     - nodejs-less
-	  - python-psycopg2
+    - python-psycopg2
 
 #
 ## set python dependencies
