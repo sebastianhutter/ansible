@@ -156,6 +156,7 @@
   command: make install chdir={{ checkout }} 
   sudo: yes
   sudo_user: socorro
+  ignore_errors: yes # just to chec if everything is working
   environment:
     # we need to add the path to the command because ssh does not provide a full path variable
     PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
