@@ -24,10 +24,6 @@
 ## setup the additional repositories
 #
 
-- name: install the postgresql repository
-  yum: name=http://yum.pgrpms.org/9.4/redhat/rhel-6-{{ ansible_architecture }}/pgdg-centos94-9.4-1.noarch.rpm state=present
-  when: ansible_os_family == "RedHat"
-
 - name: add the elasticsearch gpg key for its repository
   rpm_key: state=present key=http://packages.elasticsearch.org/GPG-KEY-elasticsearch
 
@@ -51,11 +47,6 @@
 - name: install necessary packages
   yum: state=latest name={{ item }}
   with_items:
-    - postgresql94-server
-    - postgresql94-plperl
-    - postgresql94-contrib
-    - postgresql94-devel
-    - postgresql94
     - make
     - rsync
     - gcc-c++
@@ -101,37 +92,15 @@
   service: state=started enabled=yes name=rabbitmq-server 
 
 #
-## configure postgresql
+## configure memcached
 #
 
-#- name: temporary allow the local db superuser auth without password
-#  lineinfile: state=present insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' backup=yes
+- name: (auto)start memchached
+  service: state=started enabled=yes name=memcached
 
-
-
-# will always trigger the handle restart postgresql because the regexp always stays true
-# need to find a better way to solve this.
-- name: initiate postgresql database
-  command: service postgresql-9.4 initdb 
-
-# linereplacemoent not working
-- name: replace the default postgresql timezone with UTC
-  template: backup=yes src=postgresql.conf.j2 dest=/var/lib/pgsql/9.4/data/postgresql.conf  
-            owner=postgres group=postgres mode=0600
-#  lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/postgresql.conf 
-#              regexp='^(timezone=).*$' line='\1"UTC"'
-  notify: restart postgresql
-
-  # lineinfile only replaces one occurence therefore we will use template and copy the file
-- name: set the default authentication method to md5
-  template: backup=yes src=pg_hba.conf.j2 dest=/var/lib/pgsql/9.4/data/pg_hba.conf  
-            owner=postgres group=postgres mode=0600
-#  #lineinfile: state=present backup=yes backrefs=yes dest=/var/lib/pgsql/9.4/data/pg_hba.conf  
-#              regexp='^(.*)ident$' line='\1md5'
-  notify: restart postgresql
-
-- name: (auto)start postgresql service
-  service: state=started enabled=yes name=postgresql-9.4
+#
+## configure postgresql database
+#
 
 - name: create postgresql database
   sudo_user: postgres
@@ -142,15 +111,6 @@
   sudo_user: postgres
   sudo: yes
   postgresql_user: db={{ database }} name={{ dbuser }} password={{ dbpass }} priv=ALL
-
-#- name: remove temporary super user access 
-#  lineinfile: state=absent insertafter=EOF dest=/var/lib/pgsql/9.4/data/pg_hba.conf line='host    all    postgres    127.0.0.1/32    peer' 
-
-#
-## configure memcached
-#
-- name: (auto)start memchached
-  service: state=started enabled=yes name=memcached
 
 #
 ## setup the user account and the necessary directories
@@ -174,12 +134,6 @@
 ## download and install soccoro for production
 #
 
-
-#
-# run as sudo
-# with checkout var
-#
-
 - name: checkout the socorro source
   git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
   sudo: yes
@@ -189,16 +143,6 @@
 # instead of setting link set global path variable with pg9.4
 # 
 
-#- name: create pg_init softlink for postgresql 9.4
-#  file: src=/usr/pgsql-9.4/bin/pg_config dest=/usr/bin/pg_config state=link
-- name: add postgresql to path
-  copy: src=pgsql_path.sh dest=/etc/profile.d/pgsql_path.sh owner=root group=root mode=0644 backup=yes 
-
-#- name: enable devtoolset-1
-#  command: scl enable devtoolset-1.1 bash
-
-# run the command as sudo
-
 - name: make breakpad and stackwalker in the checkout directory
   command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
   sudo: yes
@@ -207,14 +151,14 @@
     # we need to add the path to the command because ssh does not provide a full path variable
     PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
 
-
-# run the command as sudo
-
 # some issues to run make as sudo socorro ... maybe we need to run goit alreadz as socorro
 - name: run make inside the checkout directory as the socorro service user
   command: make install chdir={{ checkout }} 
   sudo: yes
   sudo_user: socorro
+  environment:
+    # we need to add the path to the command because ssh does not provide a full path variable
+    PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
 #
 ## copy the configuration files to the soccorro system directory
 #
@@ -278,6 +222,9 @@
 #
 ## configure local iptables firewall to enable access to all services
 #
+
+- name: disable the firewall ... for now
+  service: name=iptables enabled=no state=stopped
 
 #- name: open up iptables firewall for socorro
 #  ufw: rule=allow port={{ item }} proto=tcp
