@@ -1,0 +1,13 @@
+---
+
+# disable selinux (zfs does not like it yet)
+- name: install selinux python library
+  yum: state=latest name=libselinux-python
+
+- name: disable selinux persistent
+  selinux: state=disabled
+
+- name: disable selinux for current run
+  command: /usr/sbin/setenforce 0
+  ignore_errors: True
+  # ignore errors, setenforce will throw one if selinux is already disabled
