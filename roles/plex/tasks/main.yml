@@ -1,0 +1,23 @@
+---
+
+# install the transmission daemon
+- name: install plex
+  yum: state=present name={{ plexsetup }}
+
+- name: enable and start plex 
+  service: name=plexmediaserver state=started enabled=yes
+
+- name: create library directories 
+  file: dest={{ item }} state=directory owner=plex group=plex
+  with_items: plexlibraries
+
+- name: install the inofficial appstore bundle
+  #unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest='/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins'
+  # was not able to escabe the spaces in the full path to the plex plugin dir.
+  unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest=/tmp/
+
+- name: set filepermissions on appstore bundle
+  file: state=directory mode=775 owner=plex group=plex path=/tmp/UnSupportedAppstore.bundle recurse=yes
+
+- name: move inofficial appstore bundle
+  command: mv /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
