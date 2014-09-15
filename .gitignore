@@ -3,3 +3,11 @@ roles/xxtemplatexx
 ansible.sublime-project
 ansible.sublime-workspace
 /.project
+
+
+# temporary inventory file for test runs
+inventory.ini
+# and private key for authentication
+ansible.key
+# and vault pass
+vaultpass
