@@ -4,6 +4,9 @@
 - name: install plex
   yum: state=present name={{ plexsetup }}
 
+- name: install git
+  yum: state=latest name=git
+
 - name: enable and start plex 
   service: name=plexmediaserver state=started enabled=yes
 
@@ -20,4 +23,15 @@
   file: state=directory mode=775 owner=plex group=plex path=/tmp/UnSupportedAppstore.bundle recurse=yes
 
 - name: move inofficial appstore bundle
-  command: mv /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
+  command: mv -u -f /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
+  ignore_errors: yes
+
+- name: install node.js and pip for spotify bundle
+  yum: name={{ item }} state=latest
+  with_items:
+  - nodejs 
+  - npm
+  - python-pip
+
+- name: install pyexecjs for spotify2
+  pip: name=pyexecjs state=latest
