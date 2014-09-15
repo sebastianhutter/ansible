@@ -4,7 +4,4 @@
   user: ansible
 
   roles:
-    #- role: common
-    #- role: adclient
     - role: postgresql94
-    - role: socorro
