@@ -1,6 +1,9 @@
 ---
 
-checkout: /home/socorro/release
+deploy: /home/socorro/socorro-deploy
+deployscript: https://raw.githubusercontent.com/mozilla/socorro/master/scripts/deploy.sh
+deploypackage: https://ci.mozilla.org/job/socorro-release/lastSuccessfulBuild/artifact/socorro.tar.gz
+
 
 domain: ftss.com
 

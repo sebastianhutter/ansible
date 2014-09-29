@@ -6,5 +6,5 @@
   roles:
     #- role: common
     #- role: adclient
-    - role: postgresql94
+    #- role: postgresql94
     - role: socorro

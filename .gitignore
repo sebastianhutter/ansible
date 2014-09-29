@@ -2,3 +2,6 @@
 roles/xxtemplatexx
 ansible.sublime-project
 ansible.sublime-workspace
+ansible.key
+inventory.ini
+vault.pass
