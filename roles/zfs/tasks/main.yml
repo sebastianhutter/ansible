@@ -1,0 +1,22 @@
+---
+
+# install zfs for linux
+- name: install zfs repository
+  yum: state=present name=http://archive.zfsonlinux.org/epel/zfs-release.el7.noarch.rpm
+
+- name: install kernel development environment
+  yum: state=latest name=kernel-devel
+
+- name: download full kernel source
+  get_url: url=http://vault.centos.org/7.0.1406/updates/Source/SPackages/kernel-3.10.0-123.6.3.el7.src.rpm dest=/tmp/kernelsource.rpm
+
+- name: install full kernel source 
+  command: rpm -ivh /tmp/kernelsource.rpm
+
+
+- name: set build softlink for kernel source (hardcoded. needs to be changed later)
+  file: src=/usr/src/kernels/3.10.0-123.6.3.el7.x86_64 dest=/usr/src/kernels/3.10.0-123.el7.x86_64 state=link
+
+- name: install zfs
+  yum: state=latest name=zfs
+

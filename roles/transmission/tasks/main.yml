@@ -1,0 +1,21 @@
+---
+
+# install the transmission daemon
+- name: install transmission common, daemon and cli
+  yum: state=latest name={{ item }}
+  with_items:
+  - transmission-daemon
+  - transmission-cli
+
+- name: stop transmission to copy config file
+  service: name=transmission-daemon state=stopped
+
+- name: copy transmission configuration
+  template: backup=yes src=settings.json.j2 dest=/var/lib/transmission/.config/transmission-daemon/settings.json owner=transmission group=transmission mode=0600
+
+- name: create transmission directories
+  file: dest={{ item }} state=directory owner=transmission group=transmission mode=0755
+  with_items: transmissiondirectories
+
+- name: enable transmission
+  service: name=transmission-daemon state=started enabled=yes

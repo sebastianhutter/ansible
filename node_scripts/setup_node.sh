@@ -28,9 +28,11 @@ fi
 
 # set the selinux role for the ansible home directory
 # only if selinux is enabled
-ENABLED=`cat /selinux/enforce`
-if [ "$ENABLED" == 1 ]; then
-	chcon -h unconfined_u:object_r:user_home_dir_t:s0 /var/ansible     
+ENABLED=`getenforce`
+if [ "$ENABLED" != "Disabled" ]; then
+	chcon -h unconfined_u:object_r:user_home_dir_t:s0 $ANSIBLEHOME
+	# starting with centos 7 the ssh directory needs to be set to ssh_home_t
+	chcon -h system_u:object_r:ssh_home_t:s0 $ANSIBLEHOME/.ssh    
 fi
 
 # create a sudoers configuration
