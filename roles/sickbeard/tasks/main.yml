@@ -1,0 +1,22 @@
+---
+
+- name: create sickbeard user
+  user: createhome=yes home=/var/lib/sickbeard name=sickbeard shell=/sbin/nologin state=present system=yes
+
+- name: install python-cheetah
+  yum: name=python-cheetah state=latest
+
+- name: download the sickbeard source
+  git: repo=https://github.com/midgetspy/Sick-Beard.git dest=/opt/sickbeard
+
+- name: copy systemd configuration
+  template: src=sickbeard.service.j2 dest=/etc/systemd/system/sickbeard.service
+
+- name: change owner of the sickbeard source files
+  file: path=/opt/sickbeard owner=sickbeard group=sickbeard recurse=yes
+
+- name: add sickbeard to the plex tv folder
+  file: path="{{ plexdatastore }}/public/tv" group=sickbeard mode=0775
+
+- name: enable sickbeard
+  service: name=sickbeard state=started enabled=yes 

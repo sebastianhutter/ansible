@@ -1,0 +1,11 @@
+---
+
+# install the httpd webserver repository
+- name: install httpd
+  yum: state=present name=httpd
+
+- name: enable httpd
+  service: name=httpd state=started enabled=yes
+
+- name: copy the html file
+  template: src=index.html.j2 dest=/var/www/html/index.html

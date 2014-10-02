@@ -1,0 +1,18 @@
+---
+
+- name: create potato user
+  user: createhome=yes home=/var/lib/couchpotato name=couchpotato shell=/sbin/nologin state=present system=yes
+
+
+# download the couchpotato source
+- name: download the couchpotato source
+  git: repo=https://github.com/RuudBurger/CouchPotatoServer.git dest=/opt/couchpotato
+
+- name: copy systemd configuration
+  template: src=couchpotato.service.j2 dest=/etc/systemd/system/couchpotato.service
+
+- name: change owner of the couchpotato source files
+  file: path=/opt/couchpotato owner=couchpotato group=couchpotato recurse=yes
+
+- name: enable CouchPotato
+  service: name=couchpotato state=started enabled=yes 
