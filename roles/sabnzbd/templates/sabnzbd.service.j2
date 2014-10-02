@@ -1,0 +1,14 @@
+[Unit]
+Description=sabnzbd application instance
+After=network.target
+
+[Service]
+ExecStart=/opt/sabnzbd/SABnzbd.py --daemon --config-file /var/lib/sabnzbd/config.ini -s 0.0.0.0:8085
+GuessMainPID=no
+Type=forking
+User=sabnzbd
+Group=sabnzbd
+
+[Install]
+WantedBy=multi-user.target
+

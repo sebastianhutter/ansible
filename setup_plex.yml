@@ -13,6 +13,10 @@
     - role: zfs
     - { role: transmission, tags: ['transmission'] }
     - { role: plex, tags: ['plex'] }
+    - { role: couchpotato, tags: ['couch'] }
+    - { role: sickbeard, tags: ['beard'] }
+    - { role: sabnzbd, tags: ['sabnzbd'] }
+    - { role: httpd, tags: ['httpd'] }
 
   vars:
     plexdatastore: /data/plex
