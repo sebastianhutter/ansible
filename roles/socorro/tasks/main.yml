@@ -1,4 +1,4 @@
----
+# ---
 
 #
 # install all the necessary socorro dependencies and setup a productive environment 
@@ -20,6 +20,24 @@
 #
 - include_vars: secrets.yml
 
+
+
+- name: install the epel repository if its a redhat based machine
+  yum: name=http://dl.fedoraproject.org/pub/epel/6/{{ ansible_architecture }}/epel-release-6-8.noarch.rpm state=present
+
+
+
+#
+## currently we need to disable selinux and the iptables firewall to make sure 
+## the socorro installation works
+#
+
+- name: disable selinux
+  selinux: state=disabled
+
+- name: stop and disable selinux firewall
+  service: name=iptables enabled=no state=stopped
+
 #
 ## setup the additional repositories
 #
@@ -35,45 +53,45 @@
 - name: copy the devtools repo configuration
   copy: src=devtools-1.1.repo dest=/etc/yum.repos.d/ backup=yes
 
-#
-## install the necessary pakacges
-#
+# #
+# ## install the necessary pakacges
+# #
 
-# ########
-# ## excluded for testing purposes
-# ########
-# ########
+# # ########
+# # ## excluded for testing purposes
+# # ########
+# # ########
 
-- name: install necessary packages
-  yum: state=latest name={{ item }}
-  with_items:
-    - make
-    - rsync
-    - gcc-c++
-    - python-devel
-    - python-pip
-    - mercurial
-    - libxml2-devel
-    - libxslt-devel
-    - java-1.7.0-openjdk
-    - python-virtualenv
-    - npm
-    - devtoolset-1.1-gcc-c++
-    - rabbitmq-server
-    - elasticsearch
-    - httpd
-    - mod_wsgi
-    - memcached
-    - daemonize
-    - mod_ssl
-    - subversion
-    - git
-    - nodejs-less
-    - python-psycopg2
+# - name: install necessary packages
+#   yum: state=latest name={{ item }}
+#   with_items:
+#     - make
+#     - rsync
+#     - gcc-c++
+#     - python-devel
+#     - python-pip
+#     - mercurial
+#     - libxml2-devel
+#     - libxslt-devel
+#     - java-1.7.0-openjdk
+#     - python-virtualenv
+#     - npm
+#     - devtoolset-1.1-gcc-c++
+#     - rabbitmq-server
+#     - elasticsearch
+#     - httpd
+#     - mod_wsgi
+#     - memcached
+#     - daemonize
+#     - mod_ssl
+#     - subversion
+#     - git
+#     - nodejs-less
+#     - python-psycopg2
 
-#
-## set python dependencies
-#
+# #
+# ## set python dependencies
+# #
 - name: install python alembic
   pip: state=present name={{ item }}
   with_items:
@@ -84,6 +102,7 @@
     - raven
     - django-jingo-offline-compressor
     - passlib
+
 #
 ## configure rabbitmq
 #
@@ -126,115 +145,153 @@
     - { path: '/var/log/socorro', owner: 'socorro', group: 'socorro', mode: '0755' }
     - { path: '/data', owner: 'root', group: 'root', mode: '0755' }
     - { path: '/data/socorro', owner: 'socorro', group: 'root', mode: '0755' }
-    - { path: '/home/socorro/primaryCrashStore', owner: 'apache', group: 'root', mode: '2775' }
-    - { path: '/home/socorro/fallback', owner: 'apache', group: 'root', mode: '2775' }
+    - { path: '/home/socorro', owner: 'socorro', group: 'socorro', mode: '0705'}
+    - { path: '/home/socorro/primaryCrashStore', owner: 'apache', group: 'socorro', mode: '2775' }
+    - { path: '/home/socorro/fallback', owner: 'apache', group: 'socorro', mode: '2775' }
     - { path: '/home/socorro/persistent', owner: 'root', group: 'root', mode: '0755' }
+    - { path: '{{deploy}}', owner: 'socorro', group: 'socorro' , mode: '0755' }
 
 #
-## download and install soccoro for production
+## download deployment script and execute it
 #
+- name: copy deployment script
+  copy: src=deployment.sh dest={{deploy}}/deployment.sh mode=0755 backup=yes
 
-- name: checkout the socorro source
-  git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
-  sudo: yes
-  sudo_user: socorro
-
-#
-# instead of setting link set global path variable with pg9.4
-# 
-
-- name: make breakpad and stackwalker in the checkout directory
-  command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
-  sudo: yes
-  sudo_user: socorro
-  environment:
-    # we need to add the path to the command because ssh does not provide a full path variable
-    PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
-
-# some issues to run make as sudo socorro ... maybe we need to run goit alreadz as socorro
-- name: run make inside the checkout directory as the socorro service user
-  command: make install chdir={{ checkout }} 
-  sudo: yes
-  sudo_user: socorro
-  ignore_errors: yes # just to chec if everything is working
-  environment:
-    # we need to add the path to the command because ssh does not provide a full path variable
-    PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
-#
-## copy the configuration files to the soccorro system directory
-#
-
-# the shell module is necessery because of the wildcaqrds. the command module does not support wildcardsß
-- name: copy configuration files
-  shell: cp config/*.ini-dist /etc/socorro/ chdir={{ checkout }}
-
-- name: rename the configuration files
-  shell: rename .ini-dist .ini *.ini-dist chdir=/etc/socorro
-
-- name: change collector webserver to apache
-  lineinfile: dest=/etc/socorro/collector.ini state=present regexp=socorro.webapi.servers.CherryPy line=socorro.webapi.servers.ApacheModWSGI
-
-- name: change middleware webserver to apache
-  lineinfile: dest=/etc/socorro/middleware.ini state=present regexp=socorro.webapi.servers.CherryPy line=socorro.webapi.servers.ApacheModWSGI
+- name: execute deployment script
+  command: ./deployment.sh {{deploypackage}} chdir={{deploy}} 
 
 #
 ## install the socorro cron job manager
 #
 - name: copy socorrorc file
-  command: cp scripts/crons/socorrorc /etc/socorro chdir={{ checkout }}
+  command: cp scripts/crons/socorrorc /etc/socorro chdir=/data/socorro/application
 
-- name: copy crontab
-  command: cp config/crontab-dist /etc/cron.d/socorro chdir={{ checkout }}
+- name: copy crontab file
+  command: cp config/crontab-dist /etc/cron.d/socorro chdir=/data/socorro/application
 
 #
 ## setup the socorro services
 #
 - name: copy the socorro processor init.d script
-  command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir={{ checkout }}
+  command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir=/data/socorro/application
 
 - name: enable socorro processor service
   service: enabled=yes name=socorro-processor state=started
 
 
-#
-## configure djange and apache
-#
 
-# apache is configured via templates. right now not a single variable
-# is used in them but that will change with the next version of the socorro
-# role
 
-- name: copy django configuration to the host
-  template: src=local.py.j2 dest=/data/socorro/webapp-django/crashstats/settings/local.py backup=yes
 
-- name: sync django databases
-  django_manage: command=syncdb 
-    app_path=/data/socorro/webapp-django #virtualenv=/data/socorro/webapp-django/virtualenv 
 
-- name: copy apache configuration to host
-  template: src=socorro.conf.j2 dest=/etc/httpd/conf.d/socorro.conf backup=yes 
-  notify: restart apache
 
-# apache restart didnt work out ...
 
-- name: create htpasswd user for bpapi
-  htpasswd: path=/data/socorro/application/.htpasswd state=present name={{ htuser }} password={{ htpass }}
 
-#
-## configure local iptables firewall to enable access to all services
-#
 
-- name: disable the firewall ... for now
-  service: name=iptables enabled=no state=stopped
+# #
+# ## download and install soccoro for production
+# #
 
-#- name: open up iptables firewall for socorro
-#  ufw: rule=allow port={{ item }} proto=tcp
-#  with_items:
-#  - 80
-#  - 8000
-#  - 8883
-#  - 8125
-#  - 5432
+# - name: checkout the socorro source
+#   git: repo=https://github.com/mozilla/socorro dest={{ checkout }}
+#   sudo: yes
+#   sudo_user: socorro
 
-# tcp 80, 8000,  8883, 8125, 5432
-# not sure if we need the postgresql port 5432
+# #
+# # instead of setting link set global path variable with pg9.4
+# # 
+
+# - name: make breakpad and stackwalker in the checkout directory
+#   command: chdir={{ checkout }} scl enable devtoolset-1.1 "make breakpad stackwalker" 
+#   sudo: ye
+#   sudo_user: socorro
+#   environment:
+#     # we need to add the path to the command because ssh does not provide a full path variable
+#     PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
+
+# # some issues to run make as sudo socorro ... maybe we need to run goit alreadz as socorro
+# - name: run make inside the checkout directory as the socorro service user
+#   command: make install chdir={{ checkout }} 
+#   sudo: yes
+#   sudo_user: socorro
+#   ignore_errors: yes # just to chec if everything is working
+#   environment:
+#     # we need to add the path to the command because ssh does not provide a full path variable
+#     PATH: /usr/pgsql-9.4/bin:{{ lookup('env', 'PATH') }}
+# #
+# ## copy the configuration files to the soccorro system directory
+# #
+
+# # the shell module is necessery because of the wildcaqrds. the command module does not support wildcardsß
+# - name: copy configuration files
+#   shell: cp config/*.ini-dist /etc/socorro/ chdir={{ checkout }}
+
+# - name: rename the configuration files
+#   shell: rename .ini-dist .ini *.ini-dist chdir=/etc/socorro
+
+# - name: change collector webserver to apache
+#   lineinfile: dest=/etc/socorro/collector.ini state=present regexp=socorro.webapi.servers.CherryPy line=socorro.webapi.servers.ApacheModWSGI
+
+# - name: change middleware webserver to apache
+#   lineinfile: dest=/etc/socorro/middleware.ini state=present regexp=socorro.webapi.servers.CherryPy line=socorro.webapi.servers.ApacheModWSGI
+
+# #
+# ## install the socorro cron job manager
+# #
+# - name: copy socorrorc file
+#   command: cp scripts/crons/socorrorc /etc/socorro chdir={{ checkout }}
+
+# - name: copy crontab
+#   command: cp config/crontab-dist /etc/cron.d/socorro chdir={{ checkout }}
+
+# #
+# ## setup the socorro services
+# #
+# - name: copy the socorro processor init.d script
+#   command: cp scripts/init.d/socorro-processor /etc/init.d/ chdir={{ checkout }}
+
+# - name: enable socorro processor service
+#   service: enabled=yes name=socorro-processor state=started
+
+
+# #
+# ## configure djange and apache
+# #
+
+# # apache is configured via templates. right now not a single variable
+# # is used in them but that will change with the next version of the socorro
+# # role
+
+# - name: copy django configuration to the host
+#   template: src=local.py.j2 dest=/data/socorro/webapp-django/crashstats/settings/local.py backup=yes
+
+# - name: sync django databases
+#   django_manage: command=syncdb 
+#     app_path=/data/socorro/webapp-django #virtualenv=/data/socorro/webapp-django/virtualenv 
+
+# - name: copy apache configuration to host
+#   template: src=socorro.conf.j2 dest=/etc/httpd/conf.d/socorro.conf backup=yes 
+#   notify: restart apache
+
+# # apache restart didnt work out ...
+
+# - name: create htpasswd user for bpapi
+#   htpasswd: path=/data/socorro/application/.htpasswd state=present name={{ htuser }} password={{ htpass }}
+
+# #
+# ## configure local iptables firewall to enable access to all services
+# #
+
+# - name: disable the firewall ... for now
+#   service: name=iptables enabled=no state=stopped
+
+# #- name: open up iptables firewall for socorro
+# #  ufw: rule=allow port={{ item }} proto=tcp
+# #  with_items:
+# #  - 80
+# #  - 8000
+# #  - 8883
+# #  - 8125
+# #  - 5432
+
+# # tcp 80, 8000,  8883, 8125, 5432
+# # not sure if we need the postgresql port 5432
