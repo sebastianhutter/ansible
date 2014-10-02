@@ -1,6 +1,5 @@
 # template directory for noew roles
 roles/xxtemplatexx
-ansible.sublime-project
 ansible.sublime-workspace
 /.project
 
