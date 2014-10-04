@@ -1,0 +1,13 @@
+<VirtualHost _default_:8083>
+  
+    DocumentRoot /var/www/html/nnplus/www
+  
+    ErrorLog logs/example.com-error_log
+    CustomLog logs/example.com-access_log common
+  
+    <Directory /var/www/html/nnplus/www>
+        Options +FollowSymLinks -Indexes
+        AllowOverride All
+    </Directory>
+  
+</VirtualHost>

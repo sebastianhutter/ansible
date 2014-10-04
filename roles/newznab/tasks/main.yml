@@ -1,0 +1,73 @@
+---
+
+- name: create newznab database
+  mysql_db: name=newzbin login_user=root login_password=root state=present
+
+- name: create user account for db 
+  mysql_user: name=newzbin password=newzbin priv=newzbin.*:ALL login_user=root login_password=root  state=present 
+
+- name: install dependencies
+  yum: name={{ item }} state=latest
+  with_items:
+    - memcached 
+    - php
+    - php-mysql 
+    - php-gd 
+    - php-pear 
+    - mod_ssl 
+    - php-curl 
+    - php-process
+    - subversion
+
+- name: set php memory limit
+  lineinfile: dest=/etc/php.ini regexp=^memory_limit= line=memory_limit=-1
+
+- name: set php max execution time
+  lineinfile: dest=/etc/php.ini regexp=^max_execution_time= line=max_execution_time=120
+
+- name: set php error reporting
+  lineinfile: dest=/etc/php.ini regexp=^error_reporting= line=error_reporting=E_ALL^E_STRICT
+
+- name: set php register globals
+  lineinfile: dest=/etc/php.ini regexp=^register_globals= line=register_globals=Off
+
+- name: set mysql allowed packets
+  lineinfile: dest=/etc/my.cnf regexp=^max_allowed_packet= line=max_allowed_packet=12582912
+
+- name: set mysql max concat lenggth
+  lineinfile: dest=/etc/my.cnf regexp=^group_concat_max_len= line=group_concat_max_len=8192
+
+- name: copy the virtual host configuration
+  template: src=newznab.conf.j2 dest=/etc/httpd/conf.d/newznab.conf
+  notify: restart httpd
+
+  #
+  #
+  # listen 8083 in httpd.conf !!!
+  #
+  #
+  #
+
+- name: start memcached
+  service: name=memcached state=started enabled=yes
+
+- name: checkout newznab
+  subversion: repo=svn://svn.newznab.com/nn/branches/nnplus username=svnplus password=svnplu5 dest=/var/www/html/nnplus
+  #command: svn checkout --username 'svnplus' --password 'svnplu5' svn://svn.newznab.com/nn/branches/nnplus
+
+- name: create empty config.php
+  file: state=touch path=/var/www/html/nnplus/www/config.php
+
+- name: set file owner to apache
+  file: state=directory path=/var/www/html/nnplus owner=apache group=apache recurse=yes
+
+- name: set config file permissions
+  file: path=/var/www/html/nnplus/www/config.php mode=0775
+
+- name: set directory permissions
+  file: path={{ item }} mode=0775 recurse=yes
+  with_items:
+    - /var/www/html/nnplus/www/covers
+    - /var/www/html/nnplus/www/install
+    - /var/www/html/nnplus/www/lib/smarty/templates_c
+    - /var/www/html/nnplus/nzbfiles

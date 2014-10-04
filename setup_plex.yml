@@ -17,6 +17,8 @@
     - { role: sickbeard, tags: ['beard'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: httpd, tags: ['httpd'] }
+    - { role: mysql, tags: ['mysql'] }
+    - { role: newznab, tags: ['newznab'] }
 
   vars:
     plexdatastore: /data/plex

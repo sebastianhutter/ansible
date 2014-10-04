@@ -7,12 +7,18 @@
 - name: install git
   yum: state=latest name=git
 
-- name: enable and start plex 
-  service: name=plexmediaserver state=started enabled=yes
-
 - name: create library directories 
   file: dest={{ item }} state=directory owner=plex group=plex
   with_items: plexlibraries
+
+- name: create cache directory
+  file: dest="{{ plexdatastore }}/Application Support" state=directory owner=plex group=plex
+
+- name: link cache directory
+  file: state=link owner=plex group=plex src="{{ plexdatastore }}/Application Support" dest="/var/lib/plexmediaserver/Library/Application Support"
+
+- name: enable and start plex 
+  service: name=plexmediaserver state=started enabled=yes
 
 - name: install the inofficial appstore bundle
   #unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest='/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins'
@@ -25,6 +31,8 @@
 - name: move inofficial appstore bundle
   command: mv -u -f /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
   ignore_errors: yes
+
+- name: move plexmedia chache directory
 
 - name: install node.js and pip for spotify bundle
   yum: name={{ item }} state=latest

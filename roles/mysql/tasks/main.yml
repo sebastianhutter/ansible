@@ -1,0 +1,11 @@
+---
+
+- name: install mysql
+  yum: name={{ item }} state=latest
+  with_items:
+    - mariadb
+    - MySQL-python
+    - mariadb-server  
+
+- name: start MySQL
+  service: name=mariadb state=started enabled=yes
