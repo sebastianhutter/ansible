@@ -3,6 +3,8 @@
 - name: create potato user
   user: createhome=yes home=/var/lib/couchpotato name=couchpotato shell=/sbin/nologin state=present system=yes
 
+- name: add potato user to plex group
+  user: name=couchpotato append=yes groups=plex
 
 # download the couchpotato source
 - name: download the couchpotato source
@@ -16,3 +18,7 @@
 
 - name: enable CouchPotato
   service: name=couchpotato state=started enabled=yes 
+
+- name: copy CouchPotato settings 
+  template: src=settings.conf.j2 dest=/var/lib/couchpotato/.couchpotato/settings.conf owner=couchpotato group=couchpotato mode=0666
+  notify: restart couchpotato

@@ -1,4 +1,4 @@
 ---
 
-- name: restart plex
-  service: name=plexmediaserver state=restarted 
+- name: restart couchpotato
+  service: name=couchpotato state=restarted 
