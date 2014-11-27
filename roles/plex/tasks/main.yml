@@ -8,38 +8,38 @@
   yum: state=latest name=git
 
 - name: create library directories 
-  file: dest={{ item }} state=directory owner=plex group=plex
+  file: dest={{ item }} state=directory owner=plex group=plex mode=0775
   with_items: plexlibraries
 
 - name: create cache directory
-  file: dest="{{ plexdatastore }}/Application Support" state=directory owner=plex group=plex
+  file: dest="{{ plexdatastore }}/Application Support" state=directory owner=plex group=plex mode=0775
 
-- name: link cache directory
-  file: state=link owner=plex group=plex src="{{ plexdatastore }}/Application Support" dest="/var/lib/plexmediaserver/Library/Application Support"
+#- name: link cache directory
+#  file: state=link owner=plex group=plex src="{{ plexdatastore }}/Application Support" dest="/var/lib/plexmediaserver/Library/Application Support"
 
 - name: enable and start plex 
   service: name=plexmediaserver state=started enabled=yes
 
-- name: install the inofficial appstore bundle
-  #unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest='/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins'
-  # was not able to escabe the spaces in the full path to the plex plugin dir.
-  unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest=/tmp/
+#- name: install the inofficial appstore bundle
+#  #unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest='/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins'
+#  # was not able to escabe the spaces in the full path to the plex plugin dir.
+#  unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest=/tmp/
 
-- name: set filepermissions on appstore bundle
-  file: state=directory mode=775 owner=plex group=plex path=/tmp/UnSupportedAppstore.bundle recurse=yes
+#- name: set filepermissions on appstore bundle
+#  file: state=directory mode=775 owner=plex group=plex path=/tmp/UnSupportedAppstore.bundle recurse=yes
 
-- name: move inofficial appstore bundle
-  command: mv -u -f /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
-  ignore_errors: yes
+#- name: move inofficial appstore bundle
+#  command: mv -u -f /tmp/UnSupportedAppstore.bundle /var/lib/plexmediaserver/Library/Application\ Support/Plex\ Media\ Server/Plug-ins/
+#  ignore_errors: yes
 
-- name: move plexmedia chache directory
+#- name: move plexmedia chache directory
 
-- name: install node.js and pip for spotify bundle
-  yum: name={{ item }} state=latest
-  with_items:
-  - nodejs 
-  - npm
-  - python-pip
+#- name: install node.js and pip for spotify bundle
+#  yum: name={{ item }} state=latest
+#  with_items:
+#  - nodejs 
+#  - npm
+#  - python-pip
 
-- name: install pyexecjs for spotify2
-  pip: name=pyexecjs state=latest
+#- name: install pyexecjs for spotify2
+#  pip: name=pyexecjs state=latest
