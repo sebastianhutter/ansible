@@ -2,5 +2,5 @@
 
 # install the epel repository
 - name: install epel
-  yum: state=present name=http://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-1.noarch.rpm
+  yum: state=present name=https://dl.fedoraproject.org/pub/epel/7/x86_64/e/epel-release-7-2.noarch.rpm
   when: ansible_distribution_major_version|int >= 7 and ansible_distribution == "CentOS"
