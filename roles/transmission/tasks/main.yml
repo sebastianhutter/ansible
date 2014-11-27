@@ -7,7 +7,11 @@
   - transmission-daemon
   - transmission-cli
 
-- name: stop transmission to copy config file
+- name: enable transmission
+  service: name=transmission-daemon state=started enabled=yes
+
+# we need to stop transmission or the configuration file wont be saved
+- name: stop transmission
   service: name=transmission-daemon state=stopped
 
 - name: copy transmission configuration
@@ -17,5 +21,5 @@
   file: dest={{ item }} state=directory owner=transmission group=transmission mode=0755
   with_items: transmissiondirectories
 
-- name: enable transmission
-  service: name=transmission-daemon state=started enabled=yes
+- name: start transmission
+  service: name=transmission-daemon state=started
