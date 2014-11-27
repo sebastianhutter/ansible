@@ -3,6 +3,9 @@
 - name: install par2cmdline for par2 repairs
   yum: state=latest name=par2cmdline
 
+- name: install unzip
+  yum: state=latest name=unzip
+
 - name: install unrar command line
   yum: state=present name=http://pkgs.repoforge.org/unrar/unrar-5.0.3-1.el7.rf.x86_64.rpm
 
