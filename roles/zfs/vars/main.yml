@@ -1,0 +1,8 @@
+---
+
+#
+# variables for the zfs installation
+#
+
+# the trailing slash is important
+url: http://vault.centos.org/7.0.1406/updates/Source/SPackages/

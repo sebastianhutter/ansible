@@ -4,18 +4,32 @@
 - name: install zfs repository
   yum: state=present name=http://archive.zfsonlinux.org/epel/zfs-release.el7.noarch.rpm
 
-- name: install kernel development environment
-  yum: state=latest name=kernel-devel
+#- name: install kernel development environment
+#  yum: state=latest name=kernel-devel
 
-- name: download full kernel source
-  get_url: url=http://vault.centos.org/7.0.1406/updates/Source/SPackages/kernel-3.10.0-123.6.3.el7.src.rpm dest=/tmp/kernelsource.rpm
+- name: get the latest kernel source 
+  shell: curl {{ url }} | grep kernel | sed -e 's/.*href="\(.*\.rpm\)">.*/\1/g' | sort | tail -n 1
+  register: rpm
 
-- name: install full kernel source 
-  command: rpm -ivh /tmp/kernelsource.rpm
+- name: get the source for the kernel directory on the system
+  shell: echo {{ rpm.stdout }} | sed -e 's/kernel-\(.*\)\.src\.rpm/\1.x86_64/g'
+  register: kernel1
 
+- name: get the destination for the kernel directory on the system
+  shell: echo {{ kernel1.stdout }} | cut -d. -f1-3,6-7
+  register: kernel2
+
+- name: install full kernel source
+  yum: state=present name={{ url }}{{ rpm.stdout }} 
+
+#- name: download full kernel source
+#  get_url: url={{ url }}{{ rpm }} dest=/tmp/kernelsource.rpm
+
+#- name: install full kernel source 
+#  command: rpm -ivh /tmp/kernelsource.rpm
 
 - name: set build softlink for kernel source (hardcoded. needs to be changed later)
-  file: src=/usr/src/kernels/3.10.0-123.6.3.el7.x86_64 dest=/usr/src/kernels/3.10.0-123.el7.x86_64 state=link
+  file: src=/usr/src/kernels/{{ kernel1.stdout }} dest=/usr/src/kernels/{{ kernel2.stdout }} state=link
 
 - name: install zfs
   yum: state=latest name=zfs
