@@ -1,0 +1,5 @@
+---
+
+# disable the fastestmirror plugin which slows down the yum operations a lot
+- name: disable fastestmirror plugin
+  lineinfile: dest=/etc/yum/pluginconf.d/fastestmirror.conf state=present backrefs=yes regexp='enabled=1' line='enabled=0'
