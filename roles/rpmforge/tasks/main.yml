@@ -1,0 +1,14 @@
+---
+
+#
+# enable the rpmforge repository
+#
+
+# if it is a redhat based machine install the epel repositories
+- name: install the rpmforge repository for centos6 
+  yum: name=http://packages.sw.be/rpmforge-release/rpmforge-release-0.5.2-2.el6.rf.x86_64.rpm state=present
+  when: ansible_distribution_major_version == "6" 
+
+- name: install the rpmforge key
+  rpm_key: state=present key=http://dag.wieers.com/rpm/packages/RPM-GPG-KEY.dag.txt
+  when: ansible_distribution_major_version == "6" 
