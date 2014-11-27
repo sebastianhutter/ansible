@@ -7,30 +7,17 @@
   user: ansible
 
   roles:
-    - role: epel
-    - role: selinux
-    - role: firewalld
-    - role: zfs
+    - { role: yum, tags: ['yum'] }
+    - { role: epel, tags: ['epel'] }
+    - { role: rpmforge, tags: ['rpmforge'] }
+    - { role: selinux, tags: ['selinux'] }
+    - { role: firewalld, tags: ['firewalld'] }
+    - { role: zfs, tags: ['zfs'] }
     - { role: transmission, tags: ['transmission'] }
     - { role: plex, tags: ['plex'] }
     - { role: couchpotato, tags: ['couch'] }
     - { role: sickbeard, tags: ['beard'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: httpd, tags: ['httpd'] }
-    - { role: mysql, tags: ['mysql'] }
-    - { role: newznab, tags: ['newznab'] }
-
-  vars:
-    plexdatastore: /data/plex
-    plexsetup: https://downloads.plex.tv/plex-media-server/0.9.9.14.531-7eef8c6/plexmediaserver-0.9.9.14.531-7eef8c6.x86_64.rpm
-    plexlibraries:
-      - "{{ plexdatastore }}/public/movies"
-      - "{{ plexdatastore }}/public/tv"
-      - "{{ plexdatastore }}/public/music"
-      - "{{ plexdatastore }}/public/photos"
-      - "{{ plexdatastore }}/public/homevideos"
-    transmissionroot: /data/transmission
-    blocklist: http://john.bitsurge.net/public/biglist.p2p.gz
-    transmissiondirectories:
-      - "{{ transmissionroot }}/downloads"
-      - "{{ transmissionroot }}/incomplete"
+    #- { role: mysql, tags: ['mysql'] }
+    #- { role: newznab, tags: ['newznab'] }
