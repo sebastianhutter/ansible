@@ -1,7 +1,20 @@
 ---
 
+- name: install par2cmdline for par2 repairs
+  yum: state=latest name=par2cmdline
+
+- name: install unrar command line
+  yum: state=present name=http://pkgs.repoforge.org/unrar/unrar-5.0.3-1.el7.rf.x86_64.rpm
+
 - name: create sabnzbd user
   user: createhome=yes home=/var/lib/sabnzbd name=sabnzbd shell=/sbin/nologin state=present system=yes
+
+- name: add sabnzbd user to plex group
+  user: name=sabnzbd append=yes groups=plex
+
+- name: create download directories 
+  file: dest={{ item }} state=directory owner=sabnzbd group=sabnzbd mode=0775
+  with_items: directories
 
 - name: download the sabnzbd source
   git: repo=https://github.com/sabnzbd/sabnzbd.git dest=/opt/sabnzbd
@@ -14,3 +27,25 @@
 
 - name: enable sabnzbd
   service: name=sabnzbd state=started enabled=yes
+
+- name: copy sabnzbd configuration 
+  template: src=config.ini.j2 dest=/var/lib/sabnzbd/config.ini owner=sabnzbd group=sabnzbd mode=0600
+  notify: restart sabnzbd
+
+- name: create script directory
+  file: dest=/var/lib/sabnzbd/scripts state=directory owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy autoProcessTV.cfg to scripts dir
+  copy: src=autoProcessTV.cfg dest=/var/lib/sabnzbd/scripts/autoProcessTV.cfg owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy autoProcessTV.py to scripts dir
+  copy: src=autoProcessTV.py dest=/var/lib/sabnzbd/scripts/autoProcessTV.py owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy hellaToSickBeard.py to scripts dir
+  copy: src=hellaToSickBeard.py dest=/var/lib/sabnzbd/scripts/hellaToSickBeard.py owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy sabToSickBeard.py to scripts dir
+  copy: src=sabToSickBeard.py dest=/var/lib/sabnzbd/scripts/sabToSickBeard.py owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy process_sabnzbd.sh to scripts dir
+  copy: src=process_sabnzbd.sh dest=/var/lib/sabnzbd/scripts/process_sabnzbd.sh owner=sabnzbd group=sabnzbd mode=0755
