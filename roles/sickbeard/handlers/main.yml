@@ -1,4 +1,4 @@
 ---
 
-- name: restart plex
-  service: name=plexmediaserver state=restarted 
+- name: restart sickbeard
+  service: name=sickbeard state=restarted

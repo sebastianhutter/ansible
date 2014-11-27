@@ -3,6 +3,9 @@
 - name: create sickbeard user
   user: createhome=yes home=/var/lib/sickbeard name=sickbeard shell=/sbin/nologin state=present system=yes
 
+- name: add sickbeard user to plex group
+  user: name=sickbeard append=yes groups=plex
+
 - name: install python-cheetah
   yum: name=python-cheetah state=latest
 
@@ -12,11 +15,15 @@
 - name: copy systemd configuration
   template: src=sickbeard.service.j2 dest=/etc/systemd/system/sickbeard.service
 
+- name: copy the configuration file
+  template: src=config.ini.j2 dest=/opt/sickbeard/config.ini owner=sickbeard group=sickbeard mode=0644
+  notify: restart sickbeard
+
 - name: change owner of the sickbeard source files
   file: path=/opt/sickbeard owner=sickbeard group=sickbeard recurse=yes
 
-- name: add sickbeard to the plex tv folder
-  file: path="{{ plexdatastore }}/public/tv" group=sickbeard mode=0775
+#- name: add sickbeard to the plex tv folder
+#  file: path="{{ plexdatastore }}/public/tv" group=sickbeard mode=0775
 
 - name: enable sickbeard
   service: name=sickbeard state=started enabled=yes 
