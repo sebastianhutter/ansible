@@ -16,6 +16,7 @@ ANSIBLEHOME=/var/ansible
 SUDOERSFILE=/etc/sudoers.d/ansible
 PAM=/etc/pam.d/sudo
 PUBLICKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAqv5AqnC19iCzOFt+bpLgvs0y9gv2COrc0MLpmX6s3xJa5FPDZZpQiqCnQ94ik7AbJwjJImfyfTV8dx+1W+xUFr1252GO+0QHQC9uPI2rDL/KVKb9gHKZFGrXd9uPW3FlY66mWGtKMQYSqpsOpnkhqfHrj4gvi3MKCsJlackSsIw3+E19jMwkfPvQRvV1nWt60I1z9m4r4eHUYo1TZ3mY2yutJcusbHl36cSxFnu+5KGlGnnPaGZFEZYB24xloXRvwGx92eJ22jaiS17FT/IRQ2XGYuXNneNueKsSMD/V7G3CzZMrs69iGheh3V7phnKitA5A4IfH4NXoTFJjp5nMkw=="
+ENABLED=`getenforce`
 
 # the setup does the following
 
@@ -24,15 +25,6 @@ useradd -c 'ansible system user. used by our configuration management' -m -d $AN
 if [[ $? -ne 0 ]]; then
 	echo "could not create user $USERNAME. aborting..." 1>&2
 	exit 2
-fi
-
-# set the selinux role for the ansible home directory
-# only if selinux is enabled
-ENABLED=`getenforce`
-if [ "$ENABLED" != "Disabled" ]; then
-	chcon -h unconfined_u:object_r:user_home_dir_t:s0 $ANSIBLEHOME
-	# starting with centos 7 the ssh directory needs to be set to ssh_home_t
-	chcon -h system_u:object_r:ssh_home_t:s0 $ANSIBLEHOME/.ssh    
 fi
 
 # create a sudoers configuration
@@ -67,11 +59,22 @@ echo $USERNAME ALL=\(ALL\) NOPASSWD:ALL >> $SUDOERSFILE
 #fi
 
 
+# set the selinux context for the home directory
+if [ "$ENABLED" != "Disabled" ]; then
+	chcon -h unconfined_u:object_r:user_home_dir_t:s0 $ANSIBLEHOME
+fi
+
 # create the ssh directory for the ansible user
 mkdir $ANSIBLEHOME/.ssh
 if [[ $? -ne 0 ]]; then
 	echo "couldnt create .ssh directory in $ANSIBLEHOME. aborting ..." 1>&2
 	exit 6
+fi
+
+
+if [ "$ENABLED" != "Disabled" ]; then
+	# starting with centos 7 the ssh directory needs to be set to ssh_home_t
+	chcon -h system_u:object_r:ssh_home_t:s0 $ANSIBLEHOME/.ssh    
 fi
 
 
@@ -99,4 +102,5 @@ if [[ $? -ne 0 ]]; then
 	echo "could not change permissions on the ansible home directory. aborting ..." 1>&2
 	exit 8
 fi
+
 
