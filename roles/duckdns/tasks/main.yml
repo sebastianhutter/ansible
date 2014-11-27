@@ -1,0 +1,13 @@
+---
+
+- name: install curl
+  yum: state=latest name=curl
+
+- name: create the duckdns directory
+  file: dest={{ directory }} state=directory owner=root group=root mode=0755
+
+- name: copy the duckdns script
+  template: src=duckdns.sh.j2 dest={{directory}}/duckdns.sh owner=root group=root mode=0755
+
+- name: create cronjob for the duckdns script
+  cron: name="update duckdns" minute="*/5" user="root"  cron_file=update_duckdns job="{{ directory }}/duckdns.sh >/dev/null 2>&1"

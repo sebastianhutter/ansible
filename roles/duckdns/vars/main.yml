@@ -1,0 +1,9 @@
+---
+
+#
+# variables for plex
+#
+
+directory: /opt/duckdns
+domain: barfoot
+token: 1be91495-de7b-43b8-bda9-d0dcf14f15e2
