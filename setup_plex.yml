@@ -12,6 +12,7 @@
     - { role: rpmforge, tags: ['rpmforge'] }
     - { role: selinux, tags: ['selinux'] }
     - { role: firewalld, tags: ['firewalld'] }
+    - { role: duckdns, tags: ['duckdns'] }
     - { role: zfs, tags: ['zfs'] }
     - { role: transmission, tags: ['transmission'] }
     - { role: plex, tags: ['plex'] }
