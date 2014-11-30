@@ -16,7 +16,7 @@ enable_https = 0
 https_cert = server.crt
 https_key = server.key
 use_nzbs = 1
-use_torrents = 0
+use_torrents = 1
 nzb_method = sabnzbd
 usenet_retention = 500
 search_frequency = 40
@@ -24,7 +24,7 @@ download_propers = 1
 quality_default = 336
 status_default = 3
 flatten_folders_default = 0
-provider_order = nbzgeek http___www_nzbndx_com nzbs_org newznab_local womble_s_index usenet_crawler sick_beard_index omgwtfnzbs tvtorrents ezrss torrentleech btn hdbits
+provider_order = nbzgeek http___www_nzbndx_com btn tvtorrents torrentleech nzbs_org newznab_local womble_s_index usenet_crawler sick_beard_index omgwtfnzbs ezrss hdbits
 version_notify = 1
 naming_pattern = Season.%0S/%S.N-%Sx%0E-%E.N-%Q.N
 naming_custom_abd = 0
@@ -41,11 +41,11 @@ metadata_tivo = 0|0|0|0|0|0|0|0|0|0
 metadata_mede8er = 1|1|0|1|1|1|1|1|1|1
 cache_dir = cache
 root_dirs = 0|/data/plex/public/tv
-tv_download_dir = /data/plex/public/tv
+tv_download_dir = ""
 keep_processed_dir = 0
 move_associated_files = 0
 filter_associated_files = ""
-process_automatically = 1
+process_automatically = 0
 rename_episodes = 1
 create_missing_show_dirs = 0
 add_shows_wo_dir = 0
@@ -54,7 +54,7 @@ git_path = ""
 ignore_words = "german,french,core2hd,dutch,swedish,480p"
 [Blackhole]
 nzb_dir = ""
-torrent_dir = ""
+torrent_dir = /data/transmission/blackhole
 [EZRSS]
 ezrss = 0
 [HDBITS]
@@ -66,7 +66,7 @@ tvtorrents = 0
 tvtorrents_digest = ""
 tvtorrents_hash = ""
 [BTN]
-btn = 0
+btn = 1
 btn_api_key = ""
 [TorrentLeech]
 torrentleech = 0

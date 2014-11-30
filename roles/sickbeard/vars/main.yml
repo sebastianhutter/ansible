@@ -1,0 +1,7 @@
+---
+
+#version: sickbeard
+#sickbeard_repo: https://github.com/midgetspy/Sick-Beard.git
+version: sickrage
+sickbeard_repo: https://github.com/echel0n/SickRage.git
+sickbeard_folder: /opt/sickbeard

@@ -10,17 +10,17 @@
   yum: name=python-cheetah state=latest
 
 - name: download the sickbeard source
-  git: repo=https://github.com/midgetspy/Sick-Beard.git dest=/opt/sickbeard
+  git: repo={{ sickbeard_repo }} dest={{ sickbeard_folder }}
 
 - name: copy systemd configuration
   template: src=sickbeard.service.j2 dest=/etc/systemd/system/sickbeard.service
 
 - name: copy the configuration file
-  template: src=config.ini.j2 dest=/opt/sickbeard/config.ini owner=sickbeard group=sickbeard mode=0644
+  template: src=config.ini.{{ version }}.j2 dest={{ sickbeard_folder }}/config.ini owner=sickbeard group=sickbeard mode=0644
   notify: restart sickbeard
 
 - name: change owner of the sickbeard source files
-  file: path=/opt/sickbeard owner=sickbeard group=sickbeard recurse=yes
+  file: path={{ sickbeard_folder }} owner=sickbeard group=sickbeard recurse=yes
 
 #- name: add sickbeard to the plex tv folder
 #  file: path="{{ plexdatastore }}/public/tv" group=sickbeard mode=0775
