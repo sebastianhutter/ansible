@@ -7,6 +7,10 @@
   - transmission-daemon
   - transmission-cli
 
+- name: add transmission user to plex group
+  user: name=transmission append=yes groups=plex
+
+
 - name: enable transmission
   service: name=transmission-daemon state=started enabled=yes
 
@@ -18,7 +22,7 @@
   template: backup=yes src=settings.json.j2 dest=/var/lib/transmission/.config/transmission-daemon/settings.json owner=transmission group=transmission mode=0600
 
 - name: create transmission directories
-  file: dest={{ item }} state=directory owner=transmission group=transmission mode=0755
+  file: dest={{ item }} state=directory owner=transmission group=plex mode=0775
   with_items: transmissiondirectories
 
 - name: start transmission
