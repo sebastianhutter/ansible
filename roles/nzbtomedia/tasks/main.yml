@@ -1,0 +1,21 @@
+---
+
+#
+# this role installs nzbtomedia from git with all of its prerequisites
+#  
+
+- name: install requirements for prcoessing
+  yum: state=latest name={{ item }}
+  with_items:
+    - unrar
+    - p7zip
+    - unzip
+
+- name: clone nzbtomedia from git
+  git: repo={{ nzbToMedia_repo }} dest={{ nzbToMedia_directory }}
+
+- name: copy the configuration file
+  template: src=autoProcessMedia.cfg.j2 dest={{ nzbToMedia_directory }}/autoProcessMedia.cfg
+
+- name: set permissions on nzbtomedia nzbToMedia_directory
+  file: path={{ nzbToMedia_directory }} owner=root group=plex mode=0775 recurse=yes

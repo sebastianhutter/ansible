@@ -14,6 +14,7 @@
     - { role: firewalld, tags: ['firewalld'] }
     - { role: duckdns, tags: ['duckdns'] }
     - { role: zfs, tags: ['zfs'] }
+    - { role: nzbtomedia, tags: ['nzbtomedia'] }
     - { role: transmission, tags: ['transmission'] }
     - { role: plex, tags: ['plex'] }
     - { role: couchpotato, tags: ['couch'] }

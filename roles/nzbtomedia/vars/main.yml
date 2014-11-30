@@ -1,0 +1,35 @@
+---
+
+#
+# variables for plex
+#
+
+nzbToMedia_repo: https://github.com/clinton-hall/nzbToMedia.git
+nzbToMedia_directory: /opt/nzbtomedia
+
+couchpotato_category: movies
+couchpotato_enabled: 1
+couchpotato_host: 192.168.88.207
+couchpotato_port: 5050
+couchpotato_api: 6058e9b360b7463fb0275800719fd6dc
+couchpotato_method: renamer
+couchpotato_delete_failed: 1
+couchpotato_wait_for: 10
+couchpotato_min_size: 200
+couchpotato_delete_ignored: 1
+
+sickbeard_category: tv
+sickbeard_enabled: 1
+sickbeard_host: 192.168.88.207
+sickbeard_port: 8081
+sickbeard_user: barfoot
+sickbeard_pass: barfoot
+sickbeard_delete_failed: 1
+
+torrent_clientagent: transmission
+torrent_uselink: move
+torrent_outputdirectory: /data/transmission/downloads
+torrent_host: 192.168.88.207
+torrent_port: 9091
+torrent_user: barfoot
+torrent_pass: barfoot
