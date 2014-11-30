@@ -1,0 +1,10 @@
+---
+
+#
+# variables for ffmpeg
+#
+
+source_dir: /usr/local/src/ffmpeg
+ffmpeg_repo: git://source.ffmpeg.org/ffmpeg.git
+yasm_repo: git://github.com/yasm/yasm.git
+x264_repo: git://git.videolan.org/x264.git
