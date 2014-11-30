@@ -39,20 +39,20 @@ library = /data/plex/public/movies/
 
 [renamer]
 nfo_name = <filename>.orig.<ext>
-from = 
-force_every = 2
+from = /data/sabnzbd/complete/
+force_every = 24
 move_leftover = False
-to = 
+to = /data/plex/public/movies/
 file_name = <thename><cd>.<ext>
-enabled = 0
-next_on_failed = True
+enabled = 1
+next_on_failed = 0
 default_file_action = move
 unrar = False
 rename_nfo = True
 cleanup = False
 separator = 
 folder_name = <namethe> (<year>)
-run_every = 1
+run_every = 0
 foldersep = 
 file_action = link
 ntfs_permission = False
@@ -164,13 +164,13 @@ use_for = both
 username = barfoot
 stalled_as_failed = True
 delete_failed = True
-rpc_url = transmission
+rpc_url = /transmission
 manual = 0
 enabled = 1
 paused = False
-host = 192.168.88.207:9091
+host = http://192.168.88.207:9091
 delete_files = True
-directory = 
+directory = /data/transmission/downloads/movies/
 remove_complete = True
 password = barfoot
 
@@ -234,8 +234,8 @@ on_snatch = 0
 
 [plex]
 on_snatch = 0
-clients = 
-enabled = 0
+clients = 192.168.88.217:3005
+enabled = 1
 media_server = 192.168.88.207
 
 [prowl]
@@ -416,7 +416,7 @@ seed_ratio = 1
 domain = 
 seed_time = 40
 extra_score = 0
-enabled = 0
+enabled = 1
 only_verified = False
 seed_ratio = 1
 
@@ -445,7 +445,7 @@ seed_ratio = 1
 [thepiratebay]
 seed_time = 40
 domain = 
-enabled = 0
+enabled = 1
 seed_ratio = 1
 extra_score = 0
 
