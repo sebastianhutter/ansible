@@ -8,7 +8,7 @@
   yum: state=latest name=git
 
 - name: create library directories 
-  file: dest={{ item }} state=directory owner=plex group=plex mode=0775
+  file: dest={{ item }} state=directory owner=plex group=plex mode=2775
   with_items: plexlibraries
 
 - name: create cache directory
