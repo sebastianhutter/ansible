@@ -27,3 +27,7 @@
 
 - name: start transmission
   service: name=transmission-daemon state=started
+
+- name: copy cleanup script
+  template: backup=no src=cleanup_downloads.sh dest=/etc/cron.hourly/cleanup_downloads.sh owner=root group=root mode=0750
+
