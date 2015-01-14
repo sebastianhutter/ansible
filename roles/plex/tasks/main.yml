@@ -11,6 +11,17 @@
   file: dest={{ item }} state=directory owner=plex group=plex mode=2775
   with_items: plexlibraries
 
+# for the acls to work you need to enable them on the zfs
+# pool
+# zfs set acltype=posixacl <pool>
+- name: set acls on library directories
+  command: setfacl -R -d -m u:plex:rwx,g:plex:rwx {{ item }}
+  with_items: plexlibraries
+
+
+# Run the command if the specified file does not exist.
+- command: /usr/bin/make_database.sh arg1 arg2 creates=/path/to/database
+
 - name: create cache directory
   file: dest="{{ plexdatastore }}/Application Support" state=directory owner=plex group=plex mode=0775
 
@@ -19,6 +30,9 @@
 
 - name: enable and start plex 
   service: name=plexmediaserver state=started enabled=yes
+
+
+
 
 #- name: install the inofficial appstore bundle
 #  #unarchive: copy=yes src=UnSupportedAppstore.bundle.zip dest='/var/lib/plexmediaserver/Library/Application Support/Plex Media Server/Plug-ins'
