@@ -52,3 +52,7 @@
 
 - name: copy process_sabnzbd.sh to scripts dir
   copy: src=process_sabnzbd.sh dest=/var/lib/sabnzbd/scripts/process_sabnzbd.sh owner=sabnzbd group=sabnzbd mode=0755
+
+- name: copy cleanup script
+  template: backup=no src=cleanup_sabnzbd_downloads.sh dest=/etc/cron.daily/cleanup_sabnzbd_downloads.sh owner=root group=root mode=0750
+

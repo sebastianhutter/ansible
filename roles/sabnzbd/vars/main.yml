@@ -4,3 +4,5 @@ directories:
   - "/data/sabnzbd/incoming"
   - "/data/sabnzbd/cache"
   - "/data/sabnzbd/complete"
+
+cleanupdir: "/data/sabnzbd/complete"
