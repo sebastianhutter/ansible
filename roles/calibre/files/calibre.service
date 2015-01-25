@@ -1,0 +1,24 @@
+# install ImageMagick for the calibre server!
+
+[Unit]
+Description=Calibre Service
+After=network.target
+
+[Service]
+User=shutter
+Group=shutter
+Type=forking
+PIDFile=/var/run/calibre-server.pid
+ExecStart=/usr/bin/calibre-server \
+        --daemonize \
+        --max-cover=600x800 \
+        --max-opds-items=30 \
+        --max-opds-ungrouped-items=100 \
+        --username=barfoot \
+        --password=SoManyBooks
+        --port=8888 \
+        --pidfile=/var/run/calibre-server.pid \
+        --with-library=/home/shutter/Dropbox/Calibre\ Bibliothek/
+
+[Install]
+WantedBy=multi-user.target
