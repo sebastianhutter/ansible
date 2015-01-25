@@ -1,0 +1,25 @@
+---
+
+- name: download dropbox
+  get_url: url={{dropboxdownload}}.{{ansible_architecture}} dest=/tmp/dropbox.tar.gz
+
+- name: create dropbox dropbox dir
+  file: path={{dropboxdir}} owner=root group=root mode=0755 state=directory 
+
+- name: extract dropbox
+  unarchive: src=/tmp/dropbox.tar.gz dest={{dropboxdir}} copy=no owner=root group=root mode=0755
+
+- name: create symlink to dropboxd script
+  file: src={{dropboxdir}}/.dropbox-dist/dropboxd dest={{dropboxdir}}/dropboxd state=link
+
+- name: download dropbox command line utility
+  get_url: url=https://www.dropbox.com/download?dl=packages/dropbox.py dest={{dropboxdir}}/dropbox.py owner=root group=root mode=0755
+
+- name: create symlink in path
+  file: src={{dropboxdir}}/dropbox.py dest=/usr/local/bin/dropbox.py state=link
+
+- name: copy service file
+  template: src=dropboxd.service.j2 dest=/etc/systemd/system/dropboxd.service owner=root group=root
+
+- name: copy dropboxd multiuser script
+  template: src=dropboxd_multiuser.sh.j2 dest={{dropboxdir}}/dropboxd_multiuser.sh owner=root group=root mode=0750 

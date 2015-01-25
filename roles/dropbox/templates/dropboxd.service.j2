@@ -1,0 +1,15 @@
+Unit]
+Description=Dropbox as a system service for multi user installation
+
+[Service]
+ExecStart=/bin/bash {{dropboxdir}}/dropboxd_multiuser.sh start
+ExecStop=/bin/bash {{dropboxdir}}/dropboxd_multiuser.sh stop
+Type=forking
+User=root
+# 'LANG' might be unnecessary, since systemd already sets the
+# locale for all services according to "/etc/locale.conf".
+# Run `systemctl show-environment` to make sure.
+Environment=LANG=en_US.utf-8
+
+[Install]
+WantedBy=multi-user.target

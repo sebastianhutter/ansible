@@ -1,0 +1,82 @@
+#!/bin/bash
+# thanks to http://nixgeek.com/headless-dropbox.html
+
+# source functions file
+. /etc/init.d/functions
+
+# get all normal users on system (registered in /etc/passwd)
+l=$(grep "^UID_MIN" /etc/login.defs)
+## use awk to print if UID >= $UID_LIMIT ##
+DROPBOX_USERS=`awk -F':' -v "limit=${l##UID_MIN}" '{ if ( $3 >= limit ) print $1}' /etc/passwd`
+DAEMONDIR={{dropboxdir}}
+DAEMON={{dropboxdir}}/dropboxd
+
+start() {
+    echo "Starting dropbox..."
+    for dbuser in $DROPBOX_USERS; do
+        HOMEDIR=`getent passwd $dbuser | cut -d: -f6`
+        # check if the file .enable_dropbox exists
+        if [ -f $HOMEDIR/.enable_dropbox ]; then
+            if [ -x $DAEMON ]; then
+                echo "dropbox for user $dbuser enabled. starting dropbox"
+                pushd $DAEMONDIR > /dev/null 2>&1
+                HOME="$HOMEDIR" daemon --user $dbuser /bin/sh -c "$DAEMON&"
+                popd > /dev/null 2>&1
+                #start-stop-daemon -b -o -c $dbuser -S -u $dbuser -x $HOMEDIR/$DAEMON
+            fi
+        else
+            echo "dropbox for user $dbuser not enabled. create file .enable_dropbox in users home directory to enable dropbox for the user"
+        fi
+    done
+}
+
+stop() {
+    echo "Stopping dropbox..."
+    for dbuser in $DROPBOX_USERS; do
+      dbpid=`pgrep -u $dbuser dropbox | grep -v grep`
+      if [ -z $dbpid ]; then
+         echo "dropboxd for USER $dbuser: not running."
+      else
+         echo "dropboxd for USER $dbuser: running (pid $dbpid). killing it"
+         kill $dbpid
+      fi
+    done
+}
+
+status() {
+    for dbuser in $DROPBOX_USERS; do
+      dbpid=`pgrep -u $dbuser dropbox | grep -v grep`
+      if [ -z $dbpid ]; then
+         echo "dropboxd for USER $dbuser: not running."
+      else
+         echo "dropboxd for USER $dbuser: running (pid $dbpid)"
+      fi
+    done
+}
+
+
+case "$1" in
+  start)
+    start
+    ;;
+
+  stop)
+    stop
+    ;;
+
+  restart|reload|force-reload)
+    stop
+    start
+    ;;
+
+  status)
+    status
+    ;;
+
+  *)
+    echo "Usage: {{dropboxdir}}/dropboxd_multiuser.sh {start|stop|reload|force-reload|restart|status}"
+    exit 1
+
+esac
+
+exit 0

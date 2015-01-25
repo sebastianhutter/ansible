@@ -1,0 +1,10 @@
+---
+
+# this playbook sets up the host with the plex media server
+
+- hosts: all
+  sudo: true
+  user: ansible
+
+  roles:
+    - { role: dropbox }
