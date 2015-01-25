@@ -16,10 +16,13 @@
   get_url: url=https://www.dropbox.com/download?dl=packages/dropbox.py dest={{dropboxdir}}/dropbox.py owner=root group=root mode=0755
 
 - name: create symlink in path
-  file: src={{dropboxdir}}/dropbox.py dest=/usr/local/bin/dropbox.py state=link
+  file: src={{dropboxdir}}/dropbox.py dest=/usr/bin/dropbox.py state=link
 
 - name: copy service file
   template: src=dropboxd.service.j2 dest=/etc/systemd/system/dropboxd.service owner=root group=root
 
 - name: copy dropboxd multiuser script
   template: src=dropboxd_multiuser.sh.j2 dest={{dropboxdir}}/dropboxd_multiuser.sh owner=root group=root mode=0750 
+
+- name: enable dropbox on boot
+  service: name=dropboxd enabled=yes
