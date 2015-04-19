@@ -1,3 +1,4 @@
+---
 transmissionroot: /data/transmission
 blocklist: http://john.bitsurge.net/public/biglist.p2p.gz
 transmissiondirectories:
@@ -9,3 +10,4 @@ transmissiondirectories:
 username: barfoot
 password: barfoot
 rcpwhitelist: "127.0.0.1,192.168.88.0/24"
+queue: /var/lib/transmission/.config/transmission-daemon/torrents/
