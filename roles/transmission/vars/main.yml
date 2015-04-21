@@ -1,6 +1,12 @@
 ---
 transmissionroot: /data/transmission
-blocklist: http://john.bitsurge.net/public/biglist.p2p.gz
+remoteblocklists: 
+#  - "http://john.bitsurge.net/public/biglist.p2p.gz"
+  - "http://list.iblocklist.com/?list=ch&fileformat=p2p&archiveformat=zip"
+  - "http://list.iblocklist.com/?list=ydxerpxkpcfqjaybcssw&fileformat=p2p&archiveformat=zip"
+  - "http://list.iblocklist.com/?list=dufcxgnbjsdwmwctgfuj&fileformat=p2p&archiveformat=zip"
+#localblocklists:
+#  - ""
 transmissiondirectories:
   - "{{ transmissionroot }}/downloads"
   - "{{ transmissionroot }}/downloads/tv"
@@ -10,4 +16,6 @@ transmissiondirectories:
 username: barfoot
 password: barfoot
 rcpwhitelist: "127.0.0.1,192.168.88.0/24"
-queue: /var/lib/transmission/.config/transmission-daemon/torrents/
+transmissionconfig: /var/lib/transmission/.config/transmission-daemon
+queue: "{{ transmissionconfig }}/torrents/"
+blocklistdir: "{{ transmissionconfig }}/blocklists/"

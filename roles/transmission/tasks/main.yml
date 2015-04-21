@@ -25,11 +25,24 @@
   file: dest={{ item }} state=directory owner=transmission group=plex mode=0775
   with_items: transmissiondirectories
 
+#- name: transfer local blocklists to transmission configuration
+#  unarchive: src={{ item }} dest={{ blocklistdir }}
+#  with_items: localblocklists
+
+- name: download remote blocklists to tmp directory
+  get_url: url={{ item.1 }} dest=/tmp/list_{{ item.0 }} force=yes
+  register: downloads
+  with_indexed_items: remoteblocklists
+
+- name: unarchive the downloaded lists
+  unarchive: src={{ item.dest }} dest={{ blocklistdir }} copy=no
+  with_items: downloads.results
+
 - name: start transmission
   service: name=transmission-daemon state=started
 
 - name: copy cleanup script
-  template: backup=no src=cleanup_transmission_downloads.sh dest=/etc/cron.hourly/cleanup_transmission_downloads.sh owner=root group=root mode=0750
+  template: backup=no src=cleanup_transmission_downloads.sh dest=/etc/cron.daily/cleanup_transmission_downloads.sh owner=root group=root mode=0750
 
 - name: copy queue cleanup script
   template: backup=no src=cleanup_transmission_queue.sh dest=/etc/cron.daily/cleanup_transmission_queue.sh owner=root group=root mode=0750
