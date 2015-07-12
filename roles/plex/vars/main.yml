@@ -12,3 +12,4 @@ plexlibraries:
   - "{{ plexdatastore }}/public/music"
   - "{{ plexdatastore }}/public/photos"
   - "{{ plexdatastore }}/public/homevideos"
+  - "{{ plexdatastore }}/public/podcasts"

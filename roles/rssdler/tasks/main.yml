@@ -1,0 +1,75 @@
+---
+
+- name: install requirements
+  yum:
+    name="python-feedparser"
+    state=latest
+
+- name: install pip
+  easy_install: name=pip
+
+- name: install python mechanize
+  pip:
+    name=mechanize
+    state=latest
+
+- name: create rssdler user
+  user:
+    name={{user}}
+    shell=/bin/bash
+    home=/data/home/{{user}}
+
+- name: download rssdler python script
+  get_url:
+    url={{download}}
+    dest=/tmp/rssdler.tar.gz
+
+- name: extract rssdler
+  unarchive:
+    src=/tmp/rssdler.tar.gz
+    dest=/opt
+    copy=no
+    creates=rssdler042
+
+- name: run the python installer
+  command: /usr/bin/python /opt/rssdler042/setup.py install
+    chdir=/opt/rssdler042
+- name: create rssdler working dir
+  file:
+    path=/data/home/{{user}}/.rssdler
+    state=directory
+    mode=0755
+    owner={{user}}
+    group={{user}}
+
+- name: copy the rssdler configuration to working dir
+  copy:
+    src=rssdler.conf
+    dest=/data/home/{{user}}/.rssdler
+    mode=0755
+    owner={{user}}
+    group={{user}}
+
+- name: create softlink for config file
+  file:
+    src=/data/home/{{user}}/.rssdler/rssdler.conf
+    dest=/data/home/{{user}}/.rssdler/config.txt
+    state=link
+    owner={{user}}
+    group={{user}}
+
+- name: copy systemd service file
+  copy:
+    src=rssdler.service
+    dest=/etc/systemd/system/rssdler.service
+    mode=0644
+
+- name: enable user rssdler to write to podcasts directory
+  command: setfacl -R -m u:{{user}}:rwx /data/plex/public/podcasts
+
+
+- name: install the rssdler service and start it
+  service:
+    name=rssdler
+    state=started
+    enabled=yes

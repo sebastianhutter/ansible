@@ -21,5 +21,6 @@
     - { role: sickbeard, tags: ['beard'] }
     - { role: sabnzbd, tags: ['sabnzbd'] }
     - { role: httpd, tags: ['httpd'] }
+    - { role: rssdler, tags: ['rssdler'] }
     #- { role: mysql, tags: ['mysql'] }
     #- { role: newznab, tags: ['newznab'] }

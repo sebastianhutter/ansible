@@ -1,0 +1,12 @@
+[Unit]
+Description=rssdler - automatic podcast download
+
+[Service]
+ExecStart=/usr/bin/rssdler -d -c /data/home/rssdler/.rssdler/config.txt
+GuessMainPID=no
+Type=forking
+User=rssdler
+Group=rssdler
+
+[Install]
+WantedBy=multi-user.target
