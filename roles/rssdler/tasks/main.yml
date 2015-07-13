@@ -67,6 +67,13 @@
 - name: enable user rssdler to write to podcasts directory
   command: setfacl -R -m u:{{user}}:rwx /data/plex/public/podcasts
 
+- name: add logrotate for the rssdler logfile
+  copy: 
+    src=rssdler.logrotate
+    dest=/etc/logrotate.d/
+    mode=0644
+    owner=root
+    group=root
 
 - name: install the rssdler service and start it
   service:
