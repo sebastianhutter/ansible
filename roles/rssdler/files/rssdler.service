@@ -3,10 +3,12 @@ Description=rssdler - automatic podcast download
 
 [Service]
 ExecStart=/usr/bin/rssdler -d -c /data/home/rssdler/.rssdler/config.txt
+ExecStop=/usr/bin/rssdler -k -c /data/home/rssdler/.rssdler/config.txt
 GuessMainPID=no
 Type=forking
 User=rssdler
 Group=rssdler
+Restart=on-failure
 
 [Install]
 WantedBy=multi-user.target

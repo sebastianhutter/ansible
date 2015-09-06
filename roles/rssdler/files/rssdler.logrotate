@@ -1,0 +1,10 @@
+/data/home/rssdler/.rssdler/rssdler.log {
+    missingok
+    notifempty
+    nomail
+    compress
+    size 20k
+    daily
+    rotate 7
+    create 0600 rssdler rssdler
+}
