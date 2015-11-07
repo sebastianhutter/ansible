@@ -9,6 +9,16 @@
 - name: install python-cheetah
   yum: name=python-cheetah state=latest
 
+- name: install python devel libraries for pip cryptography
+  yum: name={{items}} state=latest
+  with_items:
+    - python-devel 
+    - libffi-devel
+    - openssl-devel
+
+- name: install cryptography module
+  pip: name=cryptography state=latest
+
 - name: download the sickbeard source
   git: repo={{ sickbeard_repo }} dest={{ sickbeard_folder }}
 
