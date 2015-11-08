@@ -1,2 +1,188 @@
 ---
 
+#
+# this playbook installs the dnas docker container on the machine
+#
+
+- name: install docker and ansible requirements
+  dnf:
+    name={{item}}
+    state=present
+  with_items:
+    - docker
+    - python-docker-py
+    - python3-docker-py
+    - nfs-utilscont
+  tags:
+    - setup
+
+- name: allow traffic to the docker containers to pass trough
+  command: firewall-cmd --permanent --zone=trusted --change-interface=docker0
+  tags:
+    - setup
+    - firewall
+
+- name: enable docker
+  service:
+    name="docker"
+    state=started
+    enabled=yes
+  tags:
+    - setup
+
+- name: create html directory for info page served by nginx container
+  file:
+    path={{dnas_html}}
+    state=directory
+    mode=0755
+  tags:
+    - setup
+    - html
+
+- name: copy html info page to folder
+  template:
+    src=index.html.j2
+    dest={{dnas_html}}/index.html
+    mode=0644
+  tags:
+    - setup
+    - html
+
+- name: mount nfs share where all persistent data from the docker containers is stored
+  mount:
+    name="{{dnas_nfs.mount}}"
+    src="{{dnas_nfs.server}}:{{dnas_nfs.path}}"
+    fstype="{{dnas_nfs.type}}"
+    opts="{{dnas_nfs.opts}}"
+    state=mounted
+  tags:
+    - setup
+    - nfs
+
+- name: create root directories in nfs server
+  file:
+    path="{{dnas_nfs.mount}}/{{item}}"
+    state=directory
+  with_items:
+    - docker
+    - library
+  tags:
+    - nfs
+    - setup
+
+- name: couchpotato container
+  docker:
+    name: couchpotato
+    image: sebastianhutter/couchpotato
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_couchpotato.restart}}"
+    ports:
+      "{{dnas_container_couchpotato.ports}}"
+    volumes:
+      "{{dnas_container_couchpotato.volumes}}"
+    command:
+      "{{dnas_container_couchpotato_command}}"
+  tags:
+    - container
+    - couchpotato
+
+- name: sickrage container
+  docker:
+    name: sickrage
+    image: sebastianhutter/sickbeard
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_sickrage.restart}}"
+    ports:
+      "{{dnas_container_sickrage.ports}}"
+    volumes:
+      "{{dnas_container_sickrage.volumes}}"
+    command:
+      "{{dnas_container_sickrage_command}}"
+  tags:
+    - container
+    - sickrage
+
+- name: sabnzbd container
+  docker:
+    name: sabnzbd
+    image: sebastianhutter/sabnzbd
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_sabnzbd.restart}}"
+    ports:
+      "{{dnas_container_sabnzbd.ports}}"
+    volumes:
+      "{{dnas_container_sabnzbd.volumes}}"
+    command:
+      "{{dnas_container_sabnzbd_command}}"
+  tags:
+    - container
+    - sabnzbd
+
+- name: plex container
+  docker:
+    name: plex
+    image: sebastianhutter/plex
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_plex.restart}}"
+    ports:
+      "{{dnas_container_plex.ports}}"
+    volumes:
+      "{{dnas_container_plex.volumes}}"
+    command:
+      "{{dnas_container_plex_command}}"
+  tags:
+    - container
+    - plex
+
+- name: nginx container
+  docker:
+    name: dnas_info
+    image: nginx
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_nginx.restart}}"
+    ports:
+      "{{dnas_container_nginx.ports}}"
+    volumes:
+      "{{dnas_container_nginx.volumes}}"
+    command:
+      "{{dnas_container_nginx_command}}"
+  tags:
+    - container
+    - nginx
+
+#
+# ansible 1.9 can not handle capadd and device
+# manually create a docker container
+#
+# - name: openvpn as container
+#   docker:
+#     name: openvpnas
+#     image: sebastianhutter/openvpnas
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_openvpnas.restart}}"
+#     ports:
+#       "{{dnas_container_openvpnas.ports}}"
+#     command:
+#       "{{dnas_container_openvpnas_command}}"
+#   tags:
+#     - container
+#     - nginx
+
+- name: create docker container for openvpn as
+  command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -t sebastianhutter/openvpnas -c openvpnas
+  ignore_errors: yes
+  tags:
+    - container
+    - openvpnas

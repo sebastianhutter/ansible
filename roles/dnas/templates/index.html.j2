@@ -1,0 +1,93 @@
+<html>
+  <head>
+    <title>Dockerized NAS - services</title>
+  </head>
+  <body>
+    <h1>
+      Dockerized Services
+    </h1>
+    <p>
+      Please find all services running on this machine below.
+    </p>
+    <hr />
+
+      <h2>sickbeard</h2>
+      <p>
+        The sickbeard pvr application for tv shoes
+      </p>
+      <p>
+        Used to search for tv shows and series which then will be automatically downloaded
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:8081">
+          Link to sickbeard
+        </a>
+      </p>
+
+      <h2>couchpotato</h2>
+      <p>
+        The couchpotato pvr application for movies
+      </p>
+      <p>
+        Search for movies and automatically download them when they become available
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:5050">
+          Link to couchpotato
+        </a>
+      </p>
+
+      <h2>sabnzbd</h2>
+      <p>
+        The full auto newsreader
+      </p>
+      <p>
+        Used to download the movies and tv shows found by couchpotato and sickbeard
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:8085">
+          Link to sabnzbd
+        </a>
+      </p>
+
+      <h2>plex</h2>
+      <p>
+        The plex media server
+      </p>
+      <p>
+        Used to watch downloaded movies, series and listen to audiobooks and music.
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:32400/web">
+          Link to plex
+        </a>
+      </p>
+
+      <h2>OpenVPN Access Server</h2>
+      <p>
+        The OpenVPN Access Server
+      </p>
+      <p>
+        Securely connect to the homework over OpenVPN
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:943">
+          Link to OpenVPN
+        </a>
+      </p>
+
+      <h2>Fedora Cockpit (no docker container)</h2>
+      <p>
+        The server cockpit
+      </p>
+      <p>
+        Used for basic server administration
+      </p>
+      <p>
+        <a href="http://{{ansible_default_ipv4.address}}:9090">
+          Link to Cockpit
+        </a>
+      </p>
+
+      </body>
+</html>

@@ -2,7 +2,11 @@
 
 - hosts: media.barfoot.local
   remote_user: ansible
-  gather_facts: false
+  gather_facts: true
   become_user: root
   become: yes
-  
+
+  roles:
+    - {role: selinux, tags: selinux}
+    #- avahi - will disable plex !
+    - {role: dnas, tags: dnas}
