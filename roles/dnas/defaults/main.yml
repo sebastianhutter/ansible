@@ -5,34 +5,62 @@
 dnas_html: /var/dnas/html
 
 dnas_nfs:
-  server: 192.168.88.17
-  path: /mnt/test/test/nfs
-  mount: /mnt/nfs
-  opts: rw,sync,nolock
-  type: nfs
+  docker:
+    server: nas.barfoot.local
+    path: /volume1/docker
+    mount: /mnt/docker
+    opts: rw,async,nolock
+    type: nfs
+  library:
+    server: nas.barfoot.local
+    path: /volume1/library
+    mount: /mnt/library
+    opts: rw,async,nolock
+    type: nfs
+
+
+
+# dnas_nfs_docker:
+#   server: nas.barfoot.local
+#   path: /volume1/docker
+#   mount: /mnt/docker
+#   opts: rw,sync,nolock
+#   type: nfs
+
+# dnas_nfs_library:
+#   server: nas.barfoot.local
+#   path: /volume1/library
+#   mount: /mnt/library
+#   opts: rw,sync,nolock
+#   type: nfs
+
+
+
 
 # docker container information for couchpotato
 dnas_container_couchpotato:
   ports:
     - "5050:5050"
   volumes:
-    - /mnt/nfs/docker/couchpotato/cache:/home/couchpotato/cache
-    - /mnt/nfs/docker/couchpotato/custom_plugins:/home/couchpotato/custom_plugins
-    - /mnt/nfs/docker/couchpotato/database:/home/couchpotato/database
-    - /mnt/nfs/docker/couchpotato/db_backup:/home/couchpotato/db_backup
-    - /mnt/nfs/docker/couchpotato/logs:/home/couchpotato/logs
-    - /mnt/nfs/library:/library
-    - /mnt/nfs/docker/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete
-    - /mnt/nfs/docker/sabnzbd/complete:/home/sabnzbd/Downloads/complete
+    - "{{dnas_nfs.docker.mount}}/couchpotato/cache:/home/couchpotato/cache"
+    - "{{dnas_nfs.docker.mount}}/couchpotato/custom_plugins:/home/couchpotato/custom_plugins"
+    - "{{dnas_nfs.docker.mount}}/couchpotato/database:/home/couchpotato/database"
+    - "{{dnas_nfs.docker.mount}}/couchpotato/db_backup:/home/couchpotato/db_backup"
+    - "{{dnas_nfs.docker.mount}}/couchpotato/logs:/home/couchpotato/logs"
+    - "{{dnas_nfs.library.mount}}:/library"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
     - /home/couchpotato
   uid: 5002
   gid: 5002
   restart: always
   #config: https://raw.githubusercontent.com/sebastianhutter/dnas/master/container/couchpotato/build/settings.conf
-  config: http://192.168.88.240/settings.conf
+  config: http://nas.barfoot.local/dnas/settings.conf
 
 dnas_container_couchpotato_command:
-  "-c couchpotato -q -n -m -f {{dnas_container_couchpotato.config}} -i {{dnas_container_couchpotato.uid}} -o {{dnas_container_couchpotato.gid}}"
+  "-c couchpotato -n -m -f {{dnas_container_couchpotato.config}}"
+#dnas_container_couchpotato_command:
+#  "-c couchpotato -q -n -m -f {{dnas_container_couchpotato.config}} -i {{dnas_container_couchpotato.uid}} -o {{dnas_container_couchpotato.gid}}"
 
 
 # docker container information for sickrage
@@ -40,19 +68,21 @@ dnas_container_sickrage:
   ports:
     - "8081:8081"
   volumes:
-    - /mnt/nfs/docker/sickbeard/data:/home/sickbeard/data
-    - /mnt/nfs/library:/library
+    - "{{dnas_nfs.docker.mount}}/sickbeard:/home/sickbeard/data"
+    - "{{dnas_nfs.library.mount}}:/library"
     - /home/sickbeard
-    - /mnt/nfs/docker/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete
-    - /mnt/nfs/docker/sabnzbd/complete:/home/sabnzbd/Downloads/complete
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
   uid: 5004
   gid: 5004
   restart: always
   #config:  https://raw.githubusercontent.com/sebastianhutter/dnas/master/container/sickbeard/build/config.ini
-  config: http://192.168.88.240/config.ini
+  config: http://nas.barfoot.local/dnas/config.ini
 
 dnas_container_sickrage_command:
-  "-c sickbeard -q -n -m -f {{dnas_container_sickrage.config}} -i {{dnas_container_sickrage.uid}} -o {{dnas_container_sickrage.gid}}"
+  "-c sickbeard -n -m -f {{dnas_container_sickrage.config}}"
+#dnas_container_sickrage_command:
+#  "-c sickbeard -q -n -m -f {{dnas_container_sickrage.config}} -i {{dnas_container_sickrage.uid}} -o {{dnas_container_sickrage.gid}}"
 
 
 # docker container information for sabnzbt
@@ -60,21 +90,23 @@ dnas_container_sabnzbd:
   ports:
     - "8085:8085"
   volumes:
-    - /mnt/nfs/docker/sabnzbd/logs:/home/sabnzbd/logs
-    - /mnt/nfs/docker/sabnzbd/admin:/home/sabnzbd/admin
-    - /mnt/nfs/docker/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete
-    - /mnt/nfs/docker/sabnzbd/complete:/home/sabnzbd/Downloads/complete
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/logs:/home/sabnzbd/logs"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/admin:/home/sabnzbd/admin"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete"
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
     - /opt/nzbtomedia
     - /home/sabnzbd
   uid: 5001
   gid: 5001
   restart: always
   #config:  https://raw.githubusercontent.com/sebastianhutter/dnas/master/container/sabnzbd/build/sabnzbd.ini
-  config: http://192.168.88.240/sabnzbd.ini
-  nzbtomedia_config: http://192.168.88.240/autoProcessMedia.cfg
+  config: http://nas.barfoot.local/dnas/sabnzbd.ini
+  nzbtomedia_config: http://nas.barfoot.local/dnas/autoProcessMedia.cfg
 
 dnas_container_sabnzbd_command:
-  "-c sabnzbd -q -n -m -f {{dnas_container_sabnzbd.config}} -d {{dnas_container_sabnzbd.nzbtomedia_config}} -i {{dnas_container_sabnzbd.uid}} -o {{dnas_container_sabnzbd.gid}}"
+  "-c sabnzbd -n -m -f {{dnas_container_sabnzbd.config}} -d {{dnas_container_sabnzbd.nzbtomedia_config}}"
+#dnas_container_sabnzbd_command:
+#  "-c sabnzbd -q -n -m -f {{dnas_container_sabnzbd.config}} -d {{dnas_container_sabnzbd.nzbtomedia_config}} -i {{dnas_container_sabnzbd.uid}} -o {{dnas_container_sabnzbd.gid}}"
 
 
 # docker container information for plex
@@ -88,16 +120,21 @@ dnas_container_plex:
     - "32410:32410/udp"
     - "32412:32412/udp"
     - "32413:32413/udp"
+    - "32414:32414/udp"
     - "32469:32469"
   volumes:
-    - "/mnt/nfs/docker/plex/Plex Media Server:/var/lib/plexmediaserver/Library/Application Support/Plex Media Server"
+    - "{{dnas_nfs.docker.mount}}/plex/Application Support:/var/lib/plexmediaserver/Library/Application Support"
+    - "{{dnas_nfs.docker.mount}}/plex/Caches:/var/lib/plexmediaserver/Library/Caches"
+    - "{{dnas_nfs.docker.mount}}/plex/Logs:/var/lib/plexmediaserver/Library/Logs"
+    - "{{dnas_nfs.library.mount}}:/library"
   uid: 5003
   gid: 5003
   restart: always
 
 dnas_container_plex_command:
-  "-c plex -q -i {{dnas_container_plex.uid}} -o {{dnas_container_plex.gid}}"
-
+  "-c plex"
+#dnas_container_plex_command:
+#  "-c plex -q -i {{dnas_container_plex.uid}} -o {{dnas_container_plex.gid}}"
 
 # docker container which serves up a small website
 # which links to the different services on the machine
@@ -120,6 +157,8 @@ dnas_container_openvpnas:
     - "1194:1194"
     - "1194:1993/udp"
   restart: always
+  volumes:
+    - "{{dnas_nfs.docker.mount}}/openvpnas:/usr/local/openvpn_as/etc"
 
 dnas_container_openvpn_command:
   '-c openvpnas'

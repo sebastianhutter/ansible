@@ -1,0 +1,13 @@
+---
+
+# configures the ntp client on linux machines
+
+- name: install ntp
+  dnf: name=ntp state=latest
+
+- name: copy ntp client configuration
+  template: src=ntp.conf.j2 dest=/etc/ntp.conf backup=yes mode=0644 owner=root group=root
+  notify: restart ntpd
+
+- name: enable ntpd
+  service: name=ntpd state=started enabled=yes

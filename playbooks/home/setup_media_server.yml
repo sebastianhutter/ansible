@@ -10,3 +10,5 @@
     - {role: selinux, tags: selinux}
     #- avahi - will disable plex !
     - {role: dnas, tags: dnas}
+    - {role: duckdns, tags: duckdns}
+    - {role: ntp, tags: ntp}

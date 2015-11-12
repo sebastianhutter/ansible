@@ -12,7 +12,7 @@
     - docker
     - python-docker-py
     - python3-docker-py
-    - nfs-utilscont
+    - nfs-utils
   tags:
     - setup
 
@@ -48,27 +48,39 @@
     - setup
     - html
 
-- name: mount nfs share where all persistent data from the docker containers is stored
+- name: mount nfs shares for docker, library etc
   mount:
-    name="{{dnas_nfs.mount}}"
-    src="{{dnas_nfs.server}}:{{dnas_nfs.path}}"
-    fstype="{{dnas_nfs.type}}"
-    opts="{{dnas_nfs.opts}}"
+    name="{{item.value.mount}}"
+    src="{{item.value.server}}:{{item.value.path}}"
+    fstype="{{item.value.type}}"
+    opts="{{item.value.opts}}"
     state=mounted
+  with_dict: "{{dnas_nfs}}"
   tags:
     - setup
     - nfs
 
-- name: create root directories in nfs server
-  file:
-    path="{{dnas_nfs.mount}}/{{item}}"
-    state=directory
-  with_items:
-    - docker
-    - library
-  tags:
-    - nfs
-    - setup
+# - name: mount nfs share where all persistent data from the docker containers is stored
+#   mount:
+#     name="{{dnas_nfs.mount}}"
+#     src="{{dnas_nfs.server}}:{{dnas_nfs.path}}"
+#     fstype="{{dnas_nfs.type}}"
+#     opts="{{dnas_nfs.opts}}"
+#     state=mounted
+#   tags:
+#     - setup
+#     - nfs
+
+# - name: create root directories in nfs server
+#   file:
+#     path="{{dnas_nfs.mount}}/{{item}}"
+#     state=directory
+#   with_items:
+#     - docker
+#     - library
+#   tags:
+#     - nfs
+#     - setup
 
 - name: couchpotato container
   docker:
@@ -180,9 +192,12 @@
 #     - container
 #     - nginx
 
-- name: create docker container for openvpn as
-  command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -t sebastianhutter/openvpnas -c openvpnas
-  ignore_errors: yes
-  tags:
-    - container
-    - openvpnas
+# using the openvpn functiion of the synology nas
+#- name: create docker container for openvpn as
+#  # it is not possible to run openvpn on nfs with squash - it tries to set permissions devices in .x/etc
+#  #command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -v /mnt/docker/openvpnas:/usr/local/openvpn_as/etc -t sebastianhutter/openvpnas -c openvpnas
+#  command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -t sebastianhutter/openvpnas -c openvpnas
+#  ignore_errors: yes
+#  tags:
+#    - container
+#    - openvpnas
