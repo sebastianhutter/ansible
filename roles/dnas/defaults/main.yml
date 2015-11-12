@@ -162,3 +162,13 @@ dnas_container_openvpnas:
 
 dnas_container_openvpn_command:
   '-c openvpnas'
+
+# docker container for datadog monitoring
+dnas_container_datadog:
+  volumes:
+    - /var/run/docker.sock:/var/run/docker.sock
+    - /proc/:/host/proc/:ro
+    - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+  env:
+    API_KEY: 853acafbe34d1c1512fc01a41b78015e
+  restart: always

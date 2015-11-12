@@ -172,6 +172,24 @@
     - container
     - nginx
 
+- name: nginx container
+  docker:
+    name: datadog
+    image: datadog/docker-dd-agent
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_datadog.restart}}"
+    volumes:
+      "{{dnas_container_datadog.volumes}}"
+  tags:
+    - container
+    - datadog
+
+
+
+
+
 #
 # ansible 1.9 can not handle capadd and device
 # manually create a docker container
