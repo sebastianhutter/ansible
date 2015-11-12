@@ -183,7 +183,7 @@
     volumes:
       "{{dnas_container_datadog.volumes}}"
     env:
-      - "{{dnas_container_datadog.env}}"
+      "{{dnas_container_datadog.env}}"
   tags:
     - container
     - datadog
