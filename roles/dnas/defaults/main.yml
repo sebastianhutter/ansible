@@ -23,7 +23,12 @@ dnas_nfs:
     mount: /mnt/backup
     opts: rw,async,hard,intr
     type: nfs
-
+  calibre:
+    server: nas.barfoot.local
+    path: /volume1/calibre
+    mount: /mnt/calibre
+    opts: ro,async,nolock
+    type: nfs
 
 
 
@@ -178,4 +183,14 @@ dnas_container_datadog:
     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
   env:
     API_KEY: 853acafbe34d1c1512fc01a41b78015e
+  restart: always
+
+dnas_container_ubooquity:
+  ports:
+    - "2202:2202"
+  volumes:
+    - "{{dnas_nfs.docker.mount}}/ubooquity:/home/ubooquity"
+    - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+  uid: 5004
+  gid: 5004
   restart: always
