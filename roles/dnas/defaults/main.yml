@@ -17,6 +17,13 @@ dnas_nfs:
     mount: /mnt/library
     opts: rw,async,nolock
     type: nfs
+  backup:
+    server: nas.barfoot.local
+    path: /volume1/backup
+    mount: /mnt/backup
+    opts: rw,async,hard,intr
+    type: nfs
+
 
 
 

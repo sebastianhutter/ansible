@@ -212,12 +212,61 @@
 #     - container
 #     - nginx
 
-# using the openvpn functiion of the synology nas
-#- name: create docker container for openvpn as
-#  # it is not possible to run openvpn on nfs with squash - it tries to set permissions devices in .x/etc
-#  #command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -v /mnt/docker/openvpnas:/usr/local/openvpn_as/etc -t sebastianhutter/openvpnas -c openvpnas
+- name: create docker container for openvpn as
+# it is not possible to run openvpn on nfs with squash - it tries to set permissions devices in .x/etc
+  command: docker run --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -v /usr/local/openvpn_as/etc -t sebastianhutter/openvpnas -c openvpnas
 #  command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -t sebastianhutter/openvpnas -c openvpnas
-#  ignore_errors: yes
-#  tags:
-#    - container
-#    - openvpnas
+  ignore_errors: yes
+  tags:
+    - container
+    - openvpnas
+
+
+# other jobs for the dnas server
+- name: copy backup script to host
+  template:
+    src=backup.sh.j2
+    dest=/opt/backup.sh
+    mode=0755
+  tags:
+    - backup
+
+- name: create cronjob for the daily backup
+  cron:
+    name="daily backup"
+    hour="4"
+    user="root"
+    cron_file=run_backup
+    job="/opt/backup.sh daily >/dev/null 2>&1"
+  tags:
+    - backup
+
+- name: create cronjob for the weekly backup
+  cron:
+    name="weekly backup"
+    hour="2"
+    weekday="5"
+    user="root"
+    cron_file=run_backup
+    job="/opt/backup.sh weekly >/dev/null 2>&1"
+  tags:
+    - backup
+
+- name: create cronjob for the monthly backup
+  cron:
+    name="monthly backup"
+    hour="1"
+    day="1"
+    user="root"
+    cron_file=run_backup
+    job="/opt/backup.sh monthly >/dev/null 2>&1"
+  tags:
+    - backup
+
+
+
+
+
+#  30 17 * * * rsync –av --delete /path/to/source /home/mark/rsync/daily
+#     00 18 * * 5 rsync –av --delete /home/mark/rsync/daily /home/mark/rsync/weekly
+#     00 6 1 * * tar -cvjf /home/mark/rsync/monthly/monthly_$(date +%Y%m%d).tar.bz2 /home/rsync/daily/
