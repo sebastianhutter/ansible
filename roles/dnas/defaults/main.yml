@@ -194,3 +194,6 @@ dnas_container_ubooquity:
   uid: 5004
   gid: 5004
   restart: always
+
+dnas_container_ubooquity_command:
+  '-c ubooquity -n -m -f {{dnas_container_ubooquity.config}}'

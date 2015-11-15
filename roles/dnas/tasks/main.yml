@@ -188,7 +188,23 @@
     - container
     - datadog
 
-
+- name: ubooquity container
+  docker:
+    name: ubooquity
+    image: sebastianhutter/ubooquity
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_ubooquity.restart}}"
+    ports:
+      "{{dnas_container_ubooquity.ports}}"
+    volumes:
+      "{{dnas_container_ubooquity.volumes}}"
+    command:
+      "{{dnas_container_ubooquity_command}}"
+  tags:
+    - container
+    - ubooquity
 
 
 
@@ -221,6 +237,9 @@
     - container
     - openvpnas
 
+#
+# setup backup for host
+#
 
 # other jobs for the dnas server
 - name: copy backup script to host
@@ -262,11 +281,3 @@
     job="/opt/backup.sh monthly >/dev/null 2>&1"
   tags:
     - backup
-
-
-
-
-
-#  30 17 * * * rsync –av --delete /path/to/source /home/mark/rsync/daily
-#     00 18 * * 5 rsync –av --delete /home/mark/rsync/daily /home/mark/rsync/weekly
-#     00 6 1 * * tar -cvjf /home/mark/rsync/monthly/monthly_$(date +%Y%m%d).tar.bz2 /home/rsync/daily/
