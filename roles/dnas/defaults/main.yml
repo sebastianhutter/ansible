@@ -188,12 +188,17 @@ dnas_container_datadog:
 dnas_container_ubooquity:
   ports:
     - "2202:2202"
+    - "8443:443"
   volumes:
     - "{{dnas_nfs.docker.mount}}/ubooquity:/home/ubooquity"
     - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+    - /home/ubooquity
+    - /etc/nginx/ssl
   uid: 5004
   gid: 5004
   restart: always
+  config_ubooquity: http://nas.barfoot.local/dnas/preferences.xml
+  config_nginx: http://nas.barfoot.local/dnas/nginx.conf
 
 dnas_container_ubooquity_command:
-  '-c ubooquity -n -m -f {{dnas_container_ubooquity.config}}'
+  '-c ubooquity -n -f {{dnas_container_ubooquity.config_ubooquity}} -d {{dnas_container_ubooquity.config_nginx}}'
