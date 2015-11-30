@@ -237,47 +237,47 @@
     - container
     - openvpnas
 
-#
-# setup backup for host
-#
+# #
+# # setup backup for host
+# #
 
-# other jobs for the dnas server
-- name: copy backup script to host
-  template:
-    src=backup.sh.j2
-    dest=/opt/backup.sh
-    mode=0755
-  tags:
-    - backup
+# # other jobs for the dnas server
+# - name: copy backup script to host
+#   template:
+#     src=backup.sh.j2
+#     dest=/opt/backup.sh
+#     mode=0755
+#   tags:
+#     - backup
 
-- name: create cronjob for the daily backup
-  cron:
-    name="daily backup"
-    hour="4"
-    user="root"
-    cron_file=run_backup
-    job="/opt/backup.sh daily >/dev/null 2>&1"
-  tags:
-    - backup
+# - name: create cronjob for the daily backup
+#   cron:
+#     name="daily backup"
+#     hour="4"
+#     user="root"
+#     cron_file=run_backup
+#     job="/opt/backup.sh daily >/dev/null 2>&1"
+#   tags:
+#     - backup
 
-- name: create cronjob for the weekly backup
-  cron:
-    name="weekly backup"
-    hour="2"
-    weekday="5"
-    user="root"
-    cron_file=run_backup
-    job="/opt/backup.sh weekly >/dev/null 2>&1"
-  tags:
-    - backup
+# - name: create cronjob for the weekly backup
+#   cron:
+#     name="weekly backup"
+#     hour="2"
+#     weekday="5"
+#     user="root"
+#     cron_file=run_backup
+#     job="/opt/backup.sh weekly >/dev/null 2>&1"
+#   tags:
+#     - backup
 
-- name: create cronjob for the monthly backup
-  cron:
-    name="monthly backup"
-    hour="1"
-    day="1"
-    user="root"
-    cron_file=run_backup
-    job="/opt/backup.sh monthly >/dev/null 2>&1"
-  tags:
-    - backup
+# - name: create cronjob for the monthly backup
+#   cron:
+#     name="monthly backup"
+#     hour="1"
+#     day="1"
+#     user="root"
+#     cron_file=run_backup
+#     job="/opt/backup.sh monthly >/dev/null 2>&1"
+#   tags:
+#     - backup
