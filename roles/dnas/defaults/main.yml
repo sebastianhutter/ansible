@@ -207,7 +207,9 @@ dnas_container_sonarr:
   ports:
     - "8989:8989"
   volumes:
-    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/volumes/completed"
+    # we need to specify the completed path as given back by sabnzbd
+    # <sabnzbd directory>/<download dir>/<category>
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
     - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
     - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
     - "{{dnas_nfs.library.mount}}:/library"
