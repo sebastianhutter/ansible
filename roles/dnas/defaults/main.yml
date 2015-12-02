@@ -207,7 +207,8 @@ dnas_container_sonarr:
   ports:
     - "8989:8989"
   volumes:
-    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/volumes/completed
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/volumes/completed"
     - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
-    - "{{dnas_nfs.calibre.mount}}/sonarr/media:/volumes/media"
+    - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
+    - "{{dnas_nfs.library.mount}}:/library"
   restart: always
