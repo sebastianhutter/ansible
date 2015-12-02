@@ -202,3 +202,12 @@ dnas_container_ubooquity:
 
 dnas_container_ubooquity_command:
   '-c ubooquity -n -f {{dnas_container_ubooquity.config_ubooquity}} -d {{dnas_container_ubooquity.config_nginx}}'
+
+dnas_container_sonarr:
+  ports:
+    - "8989:8989"
+  volumes:
+    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/volumes/completed
+    - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
+    - "{{dnas_nfs.calibre.mount}}/sonarr/media:/volumes/media"
+  restart: always

@@ -206,6 +206,24 @@
     - container
     - ubooquity
 
+- name: sonarr container
+  docker:
+    name: sonarr
+    image: tuxeh/sonarr
+    state: reloaded
+    pull: always
+    tty: yes
+    restart_policy: "{{dnas_container_sonarr.restart}}"
+    ports:
+      "{{dnas_container_sonarr.ports}}"
+    volumes:
+      "{{dnas_container_sonarr.volumes}}"
+  tags:
+    - container
+    - sonarr
+
+
+
 
 
 #
