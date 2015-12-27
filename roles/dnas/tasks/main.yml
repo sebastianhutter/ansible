@@ -222,7 +222,31 @@
     - container
     - sonarr
 
+- name: podcast container
+  docker:
+    name: podcast
+    image: sebastianhutter/podcasts
+    state: present
+    pull: always
+    tty: yes
+    restart_policy: "no"
+    volumes:
+      "{{dnas_container_podcasts.volumes}}"
+    env:
+      "{{dnas_container_podcasts.env}}"
+  tags:
+    - container
+    - podcast
 
+- name: start podcast container daily
+  cron:
+    name: "run podcatcher"
+    special_time: "daily"
+    user: root
+    job: "/usr/bin/docker start podcast"
+  tags:
+    - cronjob
+    - podcast
 
 
 

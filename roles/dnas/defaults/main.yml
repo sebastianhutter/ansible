@@ -214,3 +214,13 @@ dnas_container_sonarr:
     - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
     - "{{dnas_nfs.library.mount}}:/library"
   restart: always
+
+dnas_container_podcasts:
+  volumes:
+    # we need to specify the completed path as given back by sabnzbd
+    # <sabnzbd directory>/<download dir>/<category>
+    - "{{dnas_nfs.docker.mount}}/podcasts/config:/volumes/config"
+    - "{{dnas_nfs.library.mount}}/podcasts:/volumes/podcasts"
+  env:
+    AUTHURL: http://nas.barfoot.local/dnas/netrc
+    PODCASTSURL: http://nas.barfoot.local/dnas/podcasts
