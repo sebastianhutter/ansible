@@ -1,0 +1,8 @@
+#!/bin/bash
+
+# first run the docker container
+/usr/bin/docker start -a podcast
+
+# now do some cleanup
+cd /mnt/library/podcasts/Manager_Tools || { echo "Failed to get in correct directory" ; exit 1 ; } 
+/usr/bin/find . -type f -exec /usr/bin/rm -f ../Manager_Tools___Members_Only/{} \;

@@ -13,6 +13,7 @@
     - python-docker-py
     - python3-docker-py
     - nfs-utils
+    - fdupes
   tags:
     - setup
 
@@ -238,15 +239,25 @@
     - container
     - podcast
 
+- name: copy podcast script
+  template:
+    src: podcatcher.sh.j2
+    dest: /opt/podcatcher.sh
+    mode: 0755
+  tags:
+    - cronjob
+    - podcast
+
 - name: start podcast container daily
   cron:
     name: "run podcatcher"
     special_time: "daily"
     user: root
-    job: "/usr/bin/docker start podcast"
+    job: "/opt/podcatcher.sh"
   tags:
     - cronjob
     - podcast
+
 
 
 

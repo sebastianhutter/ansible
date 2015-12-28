@@ -224,3 +224,4 @@ dnas_container_podcasts:
   env:
     AUTHURL: http://nas.barfoot.local/dnas/netrc
     PODCASTSURL: http://nas.barfoot.local/dnas/podcasts
+    ANNEXMODE: direct
