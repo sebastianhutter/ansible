@@ -4,5 +4,13 @@
 /usr/bin/docker start -a podcast
 
 # now do some cleanup
+
+# remove duplicate entries in manager tools members only 
+# which already show up in the normal Manager Tools
 cd /mnt/library/podcasts/Manager_Tools || { echo "Failed to get in correct directory" ; exit 1 ; } 
 /usr/bin/find . -type f -exec /usr/bin/rm -f ../Manager_Tools___Members_Only/{} \;
+
+# remove duplicate entries from career tools which are already part
+# of the Manager Tools Member Only Cast
+cd /mnt/library/podcasts/Manager_Tools___Members_Only || { echo "Failed to get in correct directory" ; exit 1 ; } 
+/usr/bin/find . -type f -exec /usr/bin/rm -f ../Career_Tools/{} \;
