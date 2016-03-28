@@ -4,3 +4,5 @@ ansible.sublime-workspace
 ansible.key
 inventory.ini
 vault.pass
+
+*.retry
