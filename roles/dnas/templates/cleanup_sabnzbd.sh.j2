@@ -1,0 +1,40 @@
+#!/bin/bash
+# 
+# this script deletes finished sabnzbd downloads
+# which where not moved into the plex library
+#
+# if a download has finished but was not moved usually means that it either couldnt be extracted
+# or ffmpeg raised an error.
+
+###
+# variables
+###
+
+modified_age="+30" # delete files older then 30 days
+
+mount_point="/mnt/docker" # mount point with sabnzbd files
+download_directory="$mount_point/sabnzbd/complete" # directory with finished downloads
+
+###
+# main
+###
+
+
+# i really hate deleting stuff. lets double and triple check everything!
+
+# check if the directory is mounted
+if ! mountpoint -q "$mount_point"; then
+	echo "$mount_point is not mounted"
+	exit 1
+fi
+
+# check if the download folder exists
+if [ ! -d "$download_directory" ]; then
+	echo "$download_directory does not exist"
+fi
+
+find "$download_directory" -mindepth 1 -maxdepth 1 -type d | while read -r d 
+do
+	# now delete everything beneath the folder which was last modified n days ago
+	find "$d" -mindepth 1 -mtime $modified_age -delete
+done
