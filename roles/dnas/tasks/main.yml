@@ -103,23 +103,23 @@
     - container
     - couchpotato
 
-- name: sickrage container
-  docker:
-    name: sickrage
-    image: sebastianhutter/sickbeard
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_sickrage.restart}}"
-    ports:
-      "{{dnas_container_sickrage.ports}}"
-    volumes:
-      "{{dnas_container_sickrage.volumes}}"
-    command:
-      "{{dnas_container_sickrage_command}}"
-  tags:
-    - container
-    - sickrage
+# - name: sickrage container
+#   docker:
+#     name: sickrage
+#     image: sebastianhutter/sickbeard
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_sickrage.restart}}"
+#     ports:
+#       "{{dnas_container_sickrage.ports}}"
+#     volumes:
+#       "{{dnas_container_sickrage.volumes}}"
+#     command:
+#       "{{dnas_container_sickrage_command}}"
+#   tags:
+#     - container
+#     - sickrage
 
 - name: sabnzbd container
   docker:
@@ -158,23 +158,23 @@
     - cronjob
     - sabnzbd
 
-- name: plex container
-  docker:
-    name: plex
-    image: sebastianhutter/plex
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_plex.restart}}"
-    ports:
-      "{{dnas_container_plex.ports}}"
-    volumes:
-      "{{dnas_container_plex.volumes}}"
-    command:
-      "{{dnas_container_plex_command}}"
-  tags:
-    - container
-    - plex
+# - name: plex container
+#   docker:
+#     name: plex
+#     image: sebastianhutter/plex
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_plex.restart}}"
+#     ports:
+#       "{{dnas_container_plex.ports}}"
+#     volumes:
+#       "{{dnas_container_plex.volumes}}"
+#     command:
+#       "{{dnas_container_plex_command}}"
+#   tags:
+#     - container
+#     - plex
 
 - name: nginx container
   docker:
@@ -194,21 +194,21 @@
     - container
     - nginx
 
-- name: datadog container
-  docker:
-    name: datadog
-    image: datadog/docker-dd-agent
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_datadog.restart}}"
-    volumes:
-      "{{dnas_container_datadog.volumes}}"
-    env:
-      "{{dnas_container_datadog.env}}"
-  tags:
-    - container
-    - datadog
+# - name: datadog container
+#   docker:
+#     name: datadog
+#     image: datadog/docker-dd-agent
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_datadog.restart}}"
+#     volumes:
+#       "{{dnas_container_datadog.volumes}}"
+#     env:
+#       "{{dnas_container_datadog.env}}"
+#   tags:
+#     - container
+#     - datadog
 
 - name: ubooquity container
   docker:
