@@ -2,7 +2,7 @@
 
 # disable selinux (zfs does not like it yet)
 - name: install selinux python library
-  yum: state=latest name=libselinux-python
+  dnf: state=latest name=libselinux-python
 
 - name: disable selinux persistent
   selinux: state=disabled
