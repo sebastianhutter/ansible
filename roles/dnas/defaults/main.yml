@@ -313,13 +313,31 @@ docker_containers:
     publish:
       - "8989:8989"
     volumes:
-      - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/sabnzbd/Downloads/complete"
       - "{{dnas_nfs.docker.mount}}/sonarr/config:/config"
       #- "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
       - "{{dnas_nfs.library.mount}}/tv:/tv"
       - "/dev/rtc:/dev/rtc:ro"
     tty: true
-
+  # sabnzbd new image ytest
+  sabnzbd2:
+    name: sabnzbd2
+    description: sabnzbd usenet downloader
+    use_systemd: yes
+    image: sebastianhutter/sabnzbd
+    image_version: latest
+    restart_policy: always
+    env:
+      SABNZBD_CONFIG_URL: "http://nas.barfoot.local/dnas/docker/sabnzbd.ini"
+      NZBTOMEDIA_CONFIG_URL: "http://nas.barfoot.local/dnas/docker/autoProcessMedia.cfg"
+    publish:
+      - "8085:8085"
+    volumes:
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/logs:/sabnzbd/logs"
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/admin:/sabnzbd/admin"
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/sabnzbd/Downloads/incomplete"
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/sabnzbd/Downloads/complete"
+    tty: true
 
 
 

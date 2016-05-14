@@ -84,7 +84,6 @@
     job: "/usr/bin/rsync -rlptDz {{dnas_local}}/ {{dnas_nfs.docker.mount}}/volbackup/"
   tags:
     - cronjob
-    - t 
 
 - name: couchpotato container
   docker:
@@ -104,23 +103,23 @@
     - container
     - couchpotato
 
-- name: sabnzbd container
-  docker:
-    name: sabnzbd
-    image: sebastianhutter/sabnzbd
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_sabnzbd.restart}}"
-    ports:
-      "{{dnas_container_sabnzbd.ports}}"
-    volumes:
-      "{{dnas_container_sabnzbd.volumes}}"
-    command:
-      "{{dnas_container_sabnzbd_command}}"
-  tags:
-    - container
-    - sabnzbd
+# - name: sabnzbd container
+#   docker:
+#     name: sabnzbd
+#     image: sebastianhutter/sabnzbd
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_sabnzbd.restart}}"
+#     ports:
+#       "{{dnas_container_sabnzbd.ports}}"
+#     volumes:
+#       "{{dnas_container_sabnzbd.volumes}}"
+#     command:
+#       "{{dnas_container_sabnzbd_command}}"
+#   tags:
+#     - container
+#     - sabnzbd
 
 
 
@@ -226,7 +225,6 @@
   tags:
     - systemd
     - contaier
-    - t
 
 - name: copy environment files for docker containers
   template:
@@ -238,7 +236,6 @@
   tags:
     - systemd
     - container
-    - t
 
 - name: copy systemd service file
   template:
@@ -250,7 +247,17 @@
   tags: 
     - systemd
     - container
-    - t
+
+
+- name: enable docker containers on boot
+  service:
+    name="{{item.value.name}}"
+    enabled=yes
+  with_dict: "{{docker_containers}}"
+  when: item.value.use_systemd 
+  tags:
+    - systemd
+    - container
 
 #
 # docker containers which are registered in the docker daemon
@@ -271,7 +278,6 @@
   when: not item.value.use_systemd 
   tags:
     - container 
-    - t
 
 
 #
