@@ -61,29 +61,30 @@
     - setup
     - nfs
 
-# - name: mount nfs share where all persistent data from the docker containers is stored
-#   mount:
-#     name="{{dnas_nfs.mount}}"
-#     src="{{dnas_nfs.server}}:{{dnas_nfs.path}}"
-#     fstype="{{dnas_nfs.type}}"
-#     opts="{{dnas_nfs.opts}}"
-#     state=mounted
-#   tags:
-#     - setup
-#     - nfs
+- name: create local docker volume directory
+  file:
+    path={{dnas_local}}
+    state=directory
+    mode=0755
+  tags:
+    - setup
 
-# - name: create root directories in nfs server
-#   file:
-#     path="{{dnas_nfs.mount}}/{{item}}"
-#     state=directory
-#   with_items:
-#     - docker
-#     - library
-#   tags:
-#     - nfs
-#     - setup
+- name: create backup directory for volumes on docker nfs share
+  file:
+    path="{{dnas_nfs.docker.mount}}/volbackup"
+    state=directory
+  tags:
+    - setup
 
-# edit: syntax highlight not properly working add to fix: "
+- name: create cronjob for regular backup of local docker volume directory
+  cron:
+    name: "backup local docker volumes"
+    special_time: "daily"
+    user: root
+    job: "/usr/bin/rsync -rlptDz {{dnas_local}}/ {{dnas_nfs.docker.mount}}/volbackup/"
+  tags:
+    - cronjob
+    - t 
 
 - name: couchpotato container
   docker:
@@ -103,24 +104,6 @@
     - container
     - couchpotato
 
-# - name: sickrage container
-#   docker:
-#     name: sickrage
-#     image: sebastianhutter/sickbeard
-#     state: reloaded
-#     pull: always
-#     tty: yes
-#     restart_policy: "{{dnas_container_sickrage.restart}}"
-#     ports:
-#       "{{dnas_container_sickrage.ports}}"
-#     volumes:
-#       "{{dnas_container_sickrage.volumes}}"
-#     command:
-#       "{{dnas_container_sickrage_command}}"
-#   tags:
-#     - container
-#     - sickrage
-
 - name: sabnzbd container
   docker:
     name: sabnzbd
@@ -139,24 +122,7 @@
     - container
     - sabnzbd
 
-- name: copy sabnzbd cleanup script
-  template:
-    src: cleanup_sabnzbd.sh.j2
-    dest: /opt/cleanup_sabnzbd.sh
-    mode: 0755
-  tags:
-    - cronjob
-    - sabnzbd
 
-- name: run cleanup script weekly
-  cron:
-    name: "run sabnzbd cleanup"
-    special_time: "weekly"
-    user: ansible
-    job: "/opt/cleanup_sabnzbd.sh"
-  tags:
-    - cronjob
-    - sabnzbd
 
 # - name: plex container
 #   docker:
@@ -176,23 +142,23 @@
 #     - container
 #     - plex
 
-- name: nginx container
-  docker:
-    name: dnas_info
-    image: nginx
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_nginx.restart}}"
-    ports:
-      "{{dnas_container_nginx.ports}}"
-    volumes:
-      "{{dnas_container_nginx.volumes}}"
-    command:
-      "{{dnas_container_nginx_command}}"
-  tags:
-    - container
-    - nginx
+# - name: nginx container
+#   docker:
+#     name: nginx
+#     image: sebastianhutter/nginx
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_nginx.restart}}"
+#     ports:
+#       "{{dnas_container_nginx.ports}}"
+#     volumes:
+#       "{{dnas_container_nginx.volumes}}"
+#     env:
+#       "{{dnas_container_nginx.env}}"
+#   tags:
+#     - container
+#     - nginx
 
 # - name: datadog container
 #   docker:
@@ -210,23 +176,23 @@
 #     - container
 #     - datadog
 
-- name: ubooquity container
-  docker:
-    name: ubooquity
-    image: sebastianhutter/ubooquity
-    state: reloaded
-    pull: always
-    tty: yes
-    restart_policy: "{{dnas_container_ubooquity.restart}}"
-    ports:
-      "{{dnas_container_ubooquity.ports}}"
-    volumes:
-      "{{dnas_container_ubooquity.volumes}}"
-    command:
-      "{{dnas_container_ubooquity_command}}"
-  tags:
-    - container
-    - ubooquity
+# - name: ubooquity container
+#   docker:
+#     name: ubooquity
+#     image: sebastianhutter/ubooquity
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_ubooquity.restart}}"
+#     ports:
+#       "{{dnas_container_ubooquity.ports}}"
+#     volumes:
+#       "{{dnas_container_ubooquity.volumes}}"
+#     env: 
+#       "{{dnas_container_ubooquity.env}}"
+#   tags:
+#     - container
+#     - ubooquity
 
 - name: sonarr container
   docker:
@@ -244,21 +210,73 @@
     - container
     - sonarr
 
-- name: podcast container
+
+
+#
+# docker containers which are controlled by systemd
+# containers which should be running 24/7 are defined with systemd
+#
+
+- name: create environment path
+  file:
+    path="{{dnas_environment_folder}}"
+    state=directory
+    owner=root
+    group=root
+  tags:
+    - systemd
+    - contaier
+    - t
+
+- name: copy environment files for docker containers
+  template:
+    src=container.env.j2
+    dest="{{dnas_environment_folder}}/{{item.value.name}}.env"
+  with_dict: "{{docker_containers}}"
+  when: item.value.use_systemd 
+  notify: reload systemd daemon
+  tags:
+    - systemd
+    - container
+    - t
+
+- name: copy systemd service file
+  template:
+    src=container.service.j2
+    dest="/etc/systemd/system/{{item.value.name}}.service"
+  with_dict: "{{docker_containers}}"
+  when: item.value.use_systemd 
+  notify: reload systemd daemon
+  tags: 
+    - systemd
+    - container
+    - t
+
+#
+# docker containers which are registered in the docker daemon
+# usefull for containers which are started by scripts
+#
+
+- name: register docker containers in docker - engine
   docker:
-    name: podcast
-    image: sebastianhutter/podcasts
+    name: "{{item.value.name}}"
+    image: "{{item.value.image}}:{{item.value.image_version}}"
     state: present
     pull: always
-    tty: yes
-    restart_policy: "no"
-    volumes:
-      "{{dnas_container_podcasts.volumes}}"
-    env:
-      "{{dnas_container_podcasts.env}}"
+    tty: "{{item.value.tty}}"
+    restart_policy: "{{item.value.restart_policy}}"
+    volumes: "{{item.value.volumes}}"
+    env: "{{item.value.env}}"
+  with_dict: "{{docker_containers}}"
+  when: not item.value.use_systemd 
   tags:
-    - container
-    - podcast
+    - container 
+    - t
+
+
+#
+# podcatcher script
+#
 
 - name: copy podcast script
   template:
@@ -280,78 +298,25 @@
     - podcast
 
 
-
-
 #
-# ansible 1.9 can not handle capadd and device
-# manually create a docker container
+# sabnzbd cleanup script
 #
-# - name: openvpn as container
-#   docker:
-#     name: openvpnas
-#     image: sebastianhutter/openvpnas
-#     state: reloaded
-#     pull: always
-#     tty: yes
-#     restart_policy: "{{dnas_container_openvpnas.restart}}"
-#     ports:
-#       "{{dnas_container_openvpnas.ports}}"
-#     command:
-#       "{{dnas_container_openvpnas_command}}"
-#   tags:
-#     - container
-#     - nginx
 
-- name: create docker container for openvpn as
-# it is not possible to run openvpn on nfs with squash - it tries to set permissions devices in .x/etc
-  command: docker run --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -v /usr/local/openvpn_as/etc -t sebastianhutter/openvpnas -c openvpnas
-#  command: docker create --cap-add=NET_ADMIN --cap-add=NET_RAW --device=/dev/net/tun --name openvpnas --restart=always -p 443:443 -p 943:943 -p 1194:1194 -p 1194:1194/udp -t sebastianhutter/openvpnas -c openvpnas
-  ignore_errors: yes
+- name: copy sabnzbd cleanup script
+  template:
+    src: cleanup_sabnzbd.sh.j2
+    dest: /opt/cleanup_sabnzbd.sh
+    mode: 0755
   tags:
-    - container
-    - openvpnas
+    - cronjob
+    - sabnzbd
 
-# #
-# # setup backup for host
-# #
-
-# # other jobs for the dnas server
-# - name: copy backup script to host
-#   template:
-#     src=backup.sh.j2
-#     dest=/opt/backup.sh
-#     mode=0755
-#   tags:
-#     - backup
-
-# - name: create cronjob for the daily backup
-#   cron:
-#     name="daily backup"
-#     hour="4"
-#     user="root"
-#     cron_file=run_backup
-#     job="/opt/backup.sh daily >/dev/null 2>&1"
-#   tags:
-#     - backup
-
-# - name: create cronjob for the weekly backup
-#   cron:
-#     name="weekly backup"
-#     hour="2"
-#     weekday="5"
-#     user="root"
-#     cron_file=run_backup
-#     job="/opt/backup.sh weekly >/dev/null 2>&1"
-#   tags:
-#     - backup
-
-# - name: create cronjob for the monthly backup
-#   cron:
-#     name="monthly backup"
-#     hour="1"
-#     day="1"
-#     user="root"
-#     cron_file=run_backup
-#     job="/opt/backup.sh monthly >/dev/null 2>&1"
-#   tags:
-#     - backup
+- name: run cleanup script weekly
+  cron:
+    name: "run sabnzbd cleanup"
+    special_time: "weekly"
+    user: ansible
+    job: "/opt/cleanup_sabnzbd.sh"
+  tags:
+    - cronjob
+    - sabnzbd
