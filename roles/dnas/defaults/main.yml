@@ -4,6 +4,11 @@
 # up by the local nginx container
 dnas_html: /var/dnas/html
 
+# directory with local volumes of containers 
+# necessary for openvpn 
+dnas_local: /srv/docker
+
+# nfs mounts
 dnas_nfs:
   docker:
     server: nas.barfoot.local
@@ -75,24 +80,24 @@ dnas_container_couchpotato_command:
 #  "-c couchpotato -q -n -m -f {{dnas_container_couchpotato.config}} -i {{dnas_container_couchpotato.uid}} -o {{dnas_container_couchpotato.gid}}"
 
 
-# docker container information for sickrage
-dnas_container_sickrage:
-  ports:
-    - "8081:8081"
-  volumes:
-    - "{{dnas_nfs.docker.mount}}/sickbeard:/home/sickbeard/data"
-    - "{{dnas_nfs.library.mount}}:/library"
-    - /home/sickbeard
-    - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete"
-    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
-  uid: 5004
-  gid: 5004
-  restart: always
-  #config:  https://raw.githubusercontent.com/sebastianhutter/dnas/master/container/sickbeard/build/config.ini
-  config: http://nas.barfoot.local/dnas/config.ini
+# # docker container information for sickrage
+# dnas_container_sickrage:
+#   ports:
+#     - "8081:8081"
+#   volumes:
+#     - "{{dnas_nfs.docker.mount}}/sickbeard:/home/sickbeard/data"
+#     - "{{dnas_nfs.library.mount}}:/library"
+#     - /home/sickbeard
+#     - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/home/sabnzbd/Downloads/incomplete"
+#     - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
+#   uid: 5004
+#   gid: 5004
+#   restart: always
+#   #config:  https://raw.githubusercontent.com/sebastianhutter/dnas/master/container/sickbeard/build/config.ini
+#   config: http://nas.barfoot.local/dnas/config.ini
 
-dnas_container_sickrage_command:
-  "-c sickbeard -n -m -f {{dnas_container_sickrage.config}}"
+# dnas_container_sickrage_command:
+#   "-c sickbeard -n -m -f {{dnas_container_sickrage.config}}"
 #dnas_container_sickrage_command:
 #  "-c sickbeard -q -n -m -f {{dnas_container_sickrage.config}} -i {{dnas_container_sickrage.uid}} -o {{dnas_container_sickrage.gid}}"
 
@@ -121,107 +126,226 @@ dnas_container_sabnzbd_command:
 #  "-c sabnzbd -q -n -m -f {{dnas_container_sabnzbd.config}} -d {{dnas_container_sabnzbd.nzbtomedia_config}} -i {{dnas_container_sabnzbd.uid}} -o {{dnas_container_sabnzbd.gid}}"
 
 
-# docker container information for plex
-dnas_container_plex:
-  ports:
-    - "32400:32400"
-    - "1900:1900/udp"
-    - "3005:3005"
-    - "5353:5353/udp"
-    - "8324:8324"
-    - "32410:32410/udp"
-    - "32412:32412/udp"
-    - "32413:32413/udp"
-    - "32414:32414/udp"
-    - "32469:32469"
-  volumes:
-    - "{{dnas_nfs.docker.mount}}/plex/Application Support:/var/lib/plexmediaserver/Library/Application Support"
-    - "{{dnas_nfs.docker.mount}}/plex/Caches:/var/lib/plexmediaserver/Library/Caches"
-    - "{{dnas_nfs.docker.mount}}/plex/Logs:/var/lib/plexmediaserver/Library/Logs"
-    - "{{dnas_nfs.library.mount}}:/library"
-  uid: 5003
-  gid: 5003
-  restart: always
+# # docker container information for plex
+# dnas_container_plex:
+#   ports:
+#     - "32400:32400"
+#     - "1900:1900/udp"
+#     - "3005:3005"
+#     - "5353:5353/udp"
+#     - "8324:8324"
+#     - "32410:32410/udp"
+#     - "32412:32412/udp"
+#     - "32413:32413/udp"
+#     - "32414:32414/udp"
+#     - "32469:32469"
+#   volumes:
+#     - "{{dnas_nfs.docker.mount}}/plex/Application Support:/var/lib/plexmediaserver/Library/Application Support"
+#     - "{{dnas_nfs.docker.mount}}/plex/Caches:/var/lib/plexmediaserver/Library/Caches"
+#     - "{{dnas_nfs.docker.mount}}/plex/Logs:/var/lib/plexmediaserver/Library/Logs"
+#     - "{{dnas_nfs.library.mount}}:/library"
+#   uid: 5003
+#   gid: 5003
+#   restart: always
 
-dnas_container_plex_command:
-  "-c plex"
+# dnas_container_plex_command:
+#   "-c plex"
 #dnas_container_plex_command:
 #  "-c plex -q -i {{dnas_container_plex.uid}} -o {{dnas_container_plex.gid}}"
 
 # docker container which serves up a small website
-# which links to the different services on the machine
-dnas_container_nginx:
-  ports:
-    - "80:80"
-  volumes:
-    - "{{dnas_html}}:/usr/share/nginx/html:ro"
-  restart: always
+# # which links to the different services on the machine
+# dnas_container_nginx:
+#   ports:
+#     - "80:80"
+#     - "8443:443"
+#   volumes:
+#     - "{{dnas_html}}:/usr/share/nginx/html:ro"
+#   restart: always
+#   env:
+#     CONFIG_URL: "http://nas.barfoot.local/dnas/nginx.conf"
+#     CONFIG_GENERATE_SSL: "yes"
+#     CONFIG_SSL_SUBJ: "/C=CH/ST=Zurich/L=Zurich/O=private/OU=dockering/CN=barfoot.local"
 
-dnas_container_nginx_command:
-  'nginx -g "daemon off;"'
+# # docker container which serves up the openvpn service
+# # this is the only container which automatically starts during boot
+# dnas_container_openvpnas:
+#   ports:
+#     - "443:443"
+#     - "943:943"
+#     - "1194:1194"
+#     - "1194:1993/udp"
+#   restart: always
+#   volumes:
+#     - "{{dnas_nfs.docker.mount}}/openvpnas:/usr/local/openvpn_as/etc"
 
-# docker container which serves up the openvpn service
-# this is the only container which automatically starts during boot
-dnas_container_openvpnas:
-  ports:
-    - "443:443"
-    - "943:943"
-    - "1194:1194"
-    - "1194:1993/udp"
-  restart: always
-  volumes:
-    - "{{dnas_nfs.docker.mount}}/openvpnas:/usr/local/openvpn_as/etc"
+# dnas_container_openvpn_command:
+#   '-c openvpnas'
 
-dnas_container_openvpn_command:
-  '-c openvpnas'
+# # docker container for datadog monitoring
+# dnas_container_datadog:
+#   volumes:
+#     - /var/run/docker.sock:/var/run/docker.sock
+#     - /proc/:/host/proc/:ro
+#     - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
+#   env:
+#     API_KEY: 853acafbe34d1c1512fc01a41b78015e
+#   restart: always
 
-# docker container for datadog monitoring
-dnas_container_datadog:
-  volumes:
-    - /var/run/docker.sock:/var/run/docker.sock
-    - /proc/:/host/proc/:ro
-    - /sys/fs/cgroup/:/host/sys/fs/cgroup:ro
-  env:
-    API_KEY: 853acafbe34d1c1512fc01a41b78015e
-  restart: always
+# dnas_container_ubooquity:
+#   ports:
+#     - "2202:2202"
+#   volumes:
+#     - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+#   restart: always
+#   env:
+#     CONFIG_URL: http://nas.barfoot.local/dnas/preferences.xml
 
-dnas_container_ubooquity:
-  ports:
-    - "2202:2202"
-    - "8443:443"
-  volumes:
-    - "{{dnas_nfs.docker.mount}}/ubooquity:/home/ubooquity"
-    - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
-    - /home/ubooquity
-    - /etc/nginx/ssl
-  uid: 5004
-  gid: 5004
-  restart: always
-  config_ubooquity: http://nas.barfoot.local/dnas/preferences.xml
-  config_nginx: http://nas.barfoot.local/dnas/nginx.conf
 
-dnas_container_ubooquity_command:
-  '-c ubooquity -n -f {{dnas_container_ubooquity.config_ubooquity}} -d {{dnas_container_ubooquity.config_nginx}}'
+# dnas_container_sonarr:
+#   ports:
+#     - "8989:8989"
+#   volumes:
+#     # we need to specify the completed path as given back by sabnzbd
+#     # <sabnzbd directory>/<download dir>/<category>
+#     - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
+#     - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
+#     - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
+#     - "{{dnas_nfs.library.mount}}:/library"
+#   restart: always
 
-dnas_container_sonarr:
-  ports:
-    - "8989:8989"
-  volumes:
-    # we need to specify the completed path as given back by sabnzbd
-    # <sabnzbd directory>/<download dir>/<category>
-    - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
-    - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
-    - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
-    - "{{dnas_nfs.library.mount}}:/library"
-  restart: always
+# dnas_container_podcasts:
+#   volumes:
+#     # we need to specify the completed path as given back by sabnzbd
+#     # <sabnzbd directory>/<download dir>/<category>
+#     - "{{dnas_nfs.docker.mount}}/podcasts/config:/volumes/config"
+#     - "{{dnas_nfs.library.mount}}/podcasts:/volumes/podcasts"
+#   env:
+#     AUTHURL: http://nas.barfoot.local/dnas/netrc
+#     PODCASTSURL: http://nas.barfoot.local/dnas/podcasts
+#     ANNEXMODE: direct
 
-dnas_container_podcasts:
-  volumes:
-    # we need to specify the completed path as given back by sabnzbd
-    # <sabnzbd directory>/<download dir>/<category>
-    - "{{dnas_nfs.docker.mount}}/podcasts/config:/volumes/config"
-    - "{{dnas_nfs.library.mount}}/podcasts:/volumes/podcasts"
-  env:
-    AUTHURL: http://nas.barfoot.local/dnas/netrc
-    PODCASTSURL: http://nas.barfoot.local/dnas/podcasts
-    ANNEXMODE: direct
+########
+#
+# re-started container stuff. using local systemd files for management now
+#
+########
+
+dnas_environment_folder: /etc/dnas-environment
+
+docker_containers:
+  # nginx reverse proxy server
+  nginx:
+    name: nginx
+    description: static information and reverse proxy
+    use_systemd: yes
+    image: sebastianhutter/nginx
+    image_version: latest
+    restart_policy: always
+    env:
+      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/nginx.conf"
+      CONFIG_GENERATE_SSL: "yes"
+      CONFIG_SSL_SUBJ: "/C=CH/ST=Zurich/L=Zurich/O=private/OU=dockering/CN=barfoot.local"
+    publish:
+      - "80:80"
+      - "8443:443"
+  # ebook server
+  ubooquity:
+    name: ubooquity
+    description: ebook server
+    use_systemd: yes
+    image: sebastianhutter/ubooquity
+    image_version: latest
+    restart_policy: always
+    env:
+      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences.xml"
+    publish:
+      - "2202:2202"
+    volumes:
+      - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+  # openvpn access server
+  openvpnas:
+    name: openvpnas
+    description: openvpn access server
+    use_systemd: yes
+    image: sebastianhutter/openvpnas
+    image_version: latest
+    restart_policy: always
+    publish:
+      - "443:443"
+      - "943:943"
+      - "1194:1194"
+      - "1194:1194/udp"
+    volumes:
+      - "{{dnas_local}}/openvpnas:/usr/local/openvpn_as/etc"
+    devices:
+      - "/dev/net/tun"
+    capadd:
+      - "NET_ADMIN"
+      - "NET_RAW"
+    tty: true
+    cmd_parameters: "-c openvpnas"
+  # podcast container defition. used to download podcasts via git - annex 
+  # the container is created on a per use basis - no systemd file
+  podcatcher:
+    name: podcatcher
+    description: podcast downloader based on git-annex
+    use_systemd: no
+    image: sebastianhutter/podcasts
+    image_version: latest
+    restart_policy: "no"
+    env:
+      AUTHURL: http://nas.barfoot.local/dnas/docker/netrc
+      PODCASTSURL: http://nas.barfoot.local/dnas/docker/podcasts
+      ANNEXMODE: direct
+    volumes:
+      - "{{dnas_nfs.docker.mount}}/podcasts/config:/volumes/config"
+      - "{{dnas_nfs.library.mount}}/podcasts:/volumes/podcasts"
+    tty: true
+  # sonarr - tv downloading etc
+  sonarr:
+    name: sonarr
+    description: sonarr tv downloader
+    use_systemd: yes
+    image: linuxserver/sonarr
+    image_version: latest
+    restart_policy: always
+    publish:
+      - "8989:8989"
+    volumes:
+      - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
+      - "{{dnas_nfs.docker.mount}}/sonarr/config:/config"
+      #- "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
+      - "{{dnas_nfs.library.mount}}/tv:/tv"
+      - "/dev/rtc:/dev/rtc:ro"
+    tty: true
+
+
+
+
+# dnas_container_sonarr:
+#   ports:
+#     - "8989:8989"
+#   volumes:
+#     # we need to specify the completed path as given back by sabnzbd
+#     # <sabnzbd directory>/<download dir>/<category>
+#     - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/home/sabnzbd/Downloads/complete"
+#     - "{{dnas_nfs.docker.mount}}/sonarr/config:/volumes/config"
+#     - "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
+#     - "{{dnas_nfs.library.mount}}:/library"
+#   restart: always
+
+
+# - name: sonarr container
+#   docker:
+#     name: sonarr
+#     image: tuxeh/sonarr
+#     state: reloaded
+#     pull: always
+#     tty: yes
+#     restart_policy: "{{dnas_container_sonarr.restart}}"
+#     ports:
+#       "{{dnas_container_sonarr.ports}}"
+#     volumes:
+#       "{{dnas_container_sonarr.volumes}}"
+#   tags:
