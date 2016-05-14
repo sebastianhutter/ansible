@@ -1,0 +1,22 @@
+{% if item.value.cmd_parameters is defined -%}
+  {% set cmd_param = item.value.cmd_parameters -%}
+{% else -%}
+  {% set cmd_param = "" -%}
+{% endif -%}
+
+[Unit]
+Description={{ item.value.description }}
+Requires=docker.service
+After=docker.service
+
+[Service]
+Restart={{ item.value.restart_policy }}
+TimeoutStartSec=5
+EnvironmentFile={{ dnas_environment_folder }}/{{ item.value.name }}.env
+ExecStartPre=-/usr/bin/docker stop {{ item.value.name }}
+ExecStartPre=-/usr/bin/docker rm -f {{ item.value.name }}
+ExecStart=/usr/bin/docker run --env-file={{dnas_environment_folder}}/{{ item.value.name }}.env $RUN_OPTIONS --name {{ item.value.name }} {{ item.value.image }}:${VERSION} {{cmd_param}}
+ExecStop=/usr/bin/docker stop -t 2 {{ item.value.name }}; /usr/bin/docker rm -f {{ item.value.name }}
+
+[Install]
+WantedBy=multi-user.target
