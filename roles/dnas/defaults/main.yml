@@ -78,17 +78,30 @@ docker_containers:
       - "80:80"
       - "8443:443"
   # ebook server
-  ubooquity:
-    name: ubooquity
-    description: ebook server
+  ubooquity-privat:
+    name: ubooquity-privat
+    description: ebook server privat
     use_systemd: yes
     image: sebastianhutter/ubooquity
     image_version: latest
     restart_policy: always
     env:
-      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences.xml"
+      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_privat.xml"
     publish:
       - "2202:2202"
+    volumes:
+      - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+  ubooquity-david:
+    name: ubooquity-david
+    description: ebook server davids library
+    use_systemd: yes
+    image: sebastianhutter/ubooquity
+    image_version: latest
+    restart_policy: always
+    env:
+      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_david.xml"
+    publish:
+      - "2203:2202"
     volumes:
       - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
   # openvpn access server
@@ -188,6 +201,4 @@ docker_containers:
       - "{{dnas_nfs.docker.mount}}/sabnzbd/incomplete:/sabnzbd/Downloads/incomplete"
       - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/sabnzbd/Downloads/complete"
     tty: true
-
-dnas_container_couchpotato_command:
-  "-c couchpotato -n -m -f {{dnas_container_couchpotato.config}}"
+  # temporary squiid proxy
