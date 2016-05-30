@@ -22,38 +22,18 @@ dnas_nfs:
     mount: /mnt/library
     opts: rw,async,nolock
     type: nfs
-  #backup:
-  #  server: nas.barfoot.local
-  #  path: /volume1/backup
-  #  mount: /mnt/backup
-  #  opts: rw,async,hard,intr
-  #  type: nfs
   calibre:
     server: nas.barfoot.local
     path: /volume1/calibre
     mount: /mnt/calibre
     opts: ro,async,nolock
     type: nfs
-
-
-
-# dnas_nfs_docker:
-#   server: nas.barfoot.local
-#   path: /volume1/docker
-#   mount: /mnt/docker
-#   opts: rw,sync,nolock
-#   type: nfs
-
-# dnas_nfs_library:
-#   server: nas.barfoot.local
-#   path: /volume1/library
-#   mount: /mnt/library
-#   opts: rw,sync,nolock
-#   type: nfs
-
-
-#dnas_container_couchpotato_command:
-#  "-c couchpotato -q -n -m -f {{dnas_container_couchpotato.config}} -i {{dnas_container_couchpotato.uid}} -o {{dnas_container_couchpotato.gid}}"
+  web:
+    server: nas.barfoot.local
+    path: /volume1/web
+    mount: /mnt/web
+    opts: rw,async,nolock
+    type: nfs
 
 #
 # docker container defitnion
@@ -125,7 +105,6 @@ docker_containers:
       - "NET_ADMIN"
       - "NET_RAW"
     tty: true
-    cmd_parameters: "-c openvpnas"
   # podcast container defition. used to download podcasts via git - annex 
   # the container is created on a per use basis - no systemd file
   podcatcher:
@@ -202,3 +181,41 @@ docker_containers:
       - "{{dnas_nfs.docker.mount}}/sabnzbd/complete:/sabnzbd/Downloads/complete"
     tty: true
   # temporary squiid proxy
+  squid:
+    name: squid
+    description: squid web proxy
+    use_systemd: yes
+    image: sameersbn/squid
+    image_version: 3.3.8-14
+    restart_policy: always
+    env:
+      SQUID_CONFIG_URL: "http://nas.barfoot.local/dnas/docker/squid.conf"
+    publish:
+      - "3128:3128"
+    volumes:
+      - "{{dnas_local}}/squid/squid.conf:/etc/squid3/squid.conf"
+    tty: true
+    custom_execstartpre:
+      - "/usr/bin/curl -o {{dnas_local}}/squid/squid.conf $SQUID_CONFIG_URL"
+  jenkins:
+    name: jenkins
+    description: jenkins container
+    use_systemd: yes
+    image: sebastianhutter/jenkins
+    image_version: latest
+    restart_policy: always
+    publish:
+      - "8080:8080"
+      - "50000:50000"
+    volumes:
+      - "{{dnas_nfs.docker.mount}}/jenkins:/var/jenkins_home"
+      - "/var/run/docker.sock:/var/run/docker.sock"
+    tty: true
+    user: root
+#
+# cronjobs and scripts
+#
+
+# ip denial script for mikrotik
+dnas_denial_count: 15
+dnas_denial_text_file: "{{dnas_nfs.web.mount}}/dnas/docker/ip_address_drop.rsc"

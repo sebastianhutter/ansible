@@ -122,7 +122,6 @@
     - systemd
     - container
 
-
 - name: enable docker containers on boot
   service:
     name="{{item.value.name}}"
@@ -152,6 +151,7 @@
   when: not item.value.use_systemd 
   tags:
     - container 
+
 
 
 #
@@ -200,3 +200,24 @@
   tags:
     - cronjob
     - sabnzbd
+
+#
+# mikrotik ip denial script
+#
+
+- name: copy mikrotik ip denial script
+  template:
+    src: create_drop_ip_list.sh.j2
+    dest: /opt/create_drop_ip_list.sh
+    mode: 0755
+  tags:
+    - cronjob
+
+- name: run denial ip script hourly
+  cron:
+    name: "run ip denial script"
+    special_time: "hourly"
+    user: root
+    job: "/opt/create_drop_ip_list.sh"
+  tags:
+    - cronjob
