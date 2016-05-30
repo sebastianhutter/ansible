@@ -1,0 +1,32 @@
+#!/bin/bash 
+
+#
+# this script get a list of denied ip addresses 
+# from the squid container and makes it available for the 
+# mikrotik router to grab it
+#
+# see this article for how to install it in mikrotik
+# http://joshaven.com/resources/tricks/mikrotik-automatically-updated-address-list/
+
+# how many dneied connections before the ip gets on the list
+DENIAL_COUNT={{dnas_denial_count}}
+IP_FILE={{dnas_denial_text_file}}
+
+ip_tcp_denied=($(docker exec -t squid /bin/bash -c "cat /var/log/squid3/access.log | grep TCP_DENIED | sed -e 's/\s\+/;/g' | cut -d';' -f3 | sort | uniq -c | sed -e 's/^\s\+//g' | sed -e 's/\s/;/g'"))
+
+# create the ip script
+rm -f 
+cat <<EOF > $IP_FILE
+/ip firewall address-list remove [find where comment="IPDenial"]
+EOF
+
+# loop trough all ips
+for ip_connection in "${ip_tcp_denied[@]}"
+do
+  denied_connections=$(echo "$ip_connection"| cut -f1 -d';')
+  ip_address=$(echo "$ip_connection"| cut -f2 -d';' | sed -e 's/\r//g')
+
+  if [ "$denied_connections" -ge "$DENIAL_COUNT" ]; then
+    echo "/ip firewall address-list add list=blacklist address=${ip_address}/32 comment=IPDenial" >> $IP_FILE
+  fi
+done
