@@ -4,12 +4,17 @@
 # this playbook installs the dnas docker container on the machine
 #
 
+- name: install docker repository
+  copy:
+    source: docker.repo
+    destination: /etc/yum.repos.d/docker.repo
+
 - name: install docker and ansible requirements
   dnf:
     name={{item}}
     state=present
   with_items:
-    - docker
+    - docker-engine
     - python-docker-py
     - python3-docker-py
     - nfs-utils
