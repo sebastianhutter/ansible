@@ -91,10 +91,25 @@ docker_containers:
     image: sebastianhutter/calibreserver
     image_version: latest
     restart_policy: always
+    env:
+      PREFIX_URL: /calibre/privat
     publish:
       - "2202:80"
     volumes:
-      - "{{dnas_nfs.calibre.mount}}/personal:/library"  
+      - "{{dnas_nfs.calibre.mount}}/personal:/library"
+  calibre-david:
+    name: calibre-david
+    description: ebook server david
+    use_systemd: yes
+    image: sebastianhutter/calibreserver
+    image_version: latest
+    restart_policy: always
+    env:
+      PREFIX_URL: /calibre/david
+    publish:
+      - "2203:80"
+    volumes:
+      - "{{dnas_nfs.calibre.mount}}/davids:/library"   
   # openvpn access server
   openvpnas:
     name: openvpnas
