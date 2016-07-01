@@ -26,7 +26,7 @@ dnas_nfs:
     server: nas.barfoot.local
     path: /volume1/calibre
     mount: /mnt/calibre
-    opts: ro,async,nolock
+    opts: rw,async,nolock
     type: nfs
   web:
     server: nas.barfoot.local
@@ -58,32 +58,43 @@ docker_containers:
       - "80:80"
       - "8443:443"
   # ebook server
-  ubooquity-privat:
-    name: ubooquity-privat
+  #ubooquity-privat:
+  #  name: ubooquity-privat
+  #  description: ebook server privat
+  #  use_systemd: yes
+  #  image: sebastianhutter/ubooquity
+  #  image_version: latest
+  #  restart_policy: always
+  #  env:
+  #    CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_privat.xml"
+  #  publish:
+  #    - "2202:2202"
+  #  volumes:
+  #    - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+  #ubooquity-david:
+  #  name: ubooquity-david
+  #  description: ebook server davids library
+  #  use_systemd: yes
+  #  image: sebastianhutter/ubooquity
+  #  image_version: latest
+  #  restart_policy: always
+  #  env:
+  #    CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_david.xml"
+  #  publish:
+  #    - "2203:2202"
+  #  volumes:
+  #    - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+  calibre-privat:
+    name: calibre-privat
     description: ebook server privat
     use_systemd: yes
-    image: sebastianhutter/ubooquity
+    image: sebastianhutter/calibreserver
     image_version: latest
     restart_policy: always
-    env:
-      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_privat.xml"
     publish:
-      - "2202:2202"
+      - "2202:80"
     volumes:
-      - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
-  ubooquity-david:
-    name: ubooquity-david
-    description: ebook server davids library
-    use_systemd: yes
-    image: sebastianhutter/ubooquity
-    image_version: latest
-    restart_policy: always
-    env:
-      CONFIG_URL: "http://nas.barfoot.local/dnas/docker/preferences_david.xml"
-    publish:
-      - "2203:2202"
-    volumes:
-      - "{{dnas_nfs.calibre.mount}}:/var/lib/ubooquity"
+      - "{{dnas_nfs.calibre.mount}}/personal:/library"  
   # openvpn access server
   openvpnas:
     name: openvpnas
@@ -111,7 +122,7 @@ docker_containers:
     name: podcatcher
     description: podcast downloader based on git-annex
     use_systemd: no
-    image: sebastianhutter/podcasts
+    image: sebastianhutter/podcatcher
     image_version: latest
     restart_policy: "no"
     env:
@@ -212,6 +223,7 @@ docker_containers:
       - "/var/run/docker.sock:/var/run/docker.sock"
     tty: true
     user: root
+
 #
 # cronjobs and scripts
 #
