@@ -226,3 +226,25 @@
     job: "/opt/create_drop_ip_list.sh"
   tags:
     - cronjob
+
+#
+# restart couchpotato and sonarr once a week
+#
+
+- name: restart sonarr weekly
+  cron:
+    name: "restart sonarr"
+    special_time: "weekly"
+    user: root
+    job: "docker pull linuxserver/sonarr && systemctl restart sonarr"
+  tags:
+    - cronjob
+
+- name: restart couchpotato2 weekly
+  cron:
+    name: "restart couchpotato2"
+    special_time: "weekly"
+    user: root
+    job: "docker pull sebastianhutter/couchpotato && systemctl restart couchpotato2"
+  tags:
+    - cronjob
