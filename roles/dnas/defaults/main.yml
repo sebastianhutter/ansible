@@ -163,6 +163,7 @@ docker_containers:
       - "{{dnas_nfs.docker.mount}}/sonarr/config:/config"
       #- "{{dnas_nfs.docker.mount}}/sonarr/media:/volumes/media"
       - "{{dnas_nfs.library.mount}}/tv:/tv"
+      - "{{dnas_nfs.library.mount}}/tv_de:/tv_de"
       - "/dev/rtc:/dev/rtc:ro"
     tty: true
   # sabnzbd new image 
