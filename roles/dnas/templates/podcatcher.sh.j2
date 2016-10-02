@@ -1,16 +1,33 @@
 #!/bin/bash
 
-# first run the docker container
-/usr/bin/docker start -a podcatcher
+# we are not using the git annex utility anymore but
+# the custom python script
 
-# now do some cleanup
+# first lets pull the current version of the docker contaienr with our python script
+docker pull sebastianhutter/podcaster
 
-# remove duplicate entries in manager tools members only 
-# which already show up in the normal Manager Tools
-cd /mnt/library/podcasts/Manager_Tools || { echo "Failed to get in correct directory" ; exit 1 ; } 
-/usr/bin/find . -type f -exec /usr/bin/rm -f ../Manager_Tools___Members_Only/{} \;
+# create directory to store our database and our config file in
+mkdir "{{dnas_nfs.docker.mount}}/podcaster"
 
-# remove duplicate entries from career tools which are already part
-# of the Manager Tools Member Only Cast
-cd /mnt/library/podcasts/Manager_Tools___Members_Only || { echo "Failed to get in correct directory" ; exit 1 ; } 
-/usr/bin/find . -type f -exec /usr/bin/rm -f ../Career_Tools/{} \;
+# copy configuration file into directory
+curl http://nas.barfoot.local/dnas/docker/podcaster.settings -o {{dnas_nfs.docker.mount}}/podcaster/podcaster.settings
+
+# run the docker container 
+# first we remove the current container - to make sure our logs and our temp directory are not overflowing
+docker rm -f podcaster
+# now lets run the container
+# we need to do the following to make the run succesfukk
+# - mount the podcaster docker dir for persistent database and config file
+# - mount the podcast library dir to move the podcasts there
+# - specify the database file
+# - specify the podcaster settings file
+# - specify the directory for the podcasts
+# - specify environment (debug logging etc)
+docker --name podcaster -d -t \
+  -v "{{dnas_nfs.docker.mount}}/podcaster:/work" \
+  -v "{{dnas_nfs.library.mount}}/podcasts:/data" \
+  -e PODCASTER_DB=/work/podcaster.db \
+  -e PODCASTER_SETTINGS=/work/podcaster.settings \
+  -e PODCASTER_DIR=/data \
+  -e PODCASTER_ENV=development \
+  sebastianhutter/podcaster
