@@ -23,7 +23,7 @@ docker rm -f podcaster
 # - specify the podcaster settings file
 # - specify the directory for the podcasts
 # - specify environment (debug logging etc)
-docker --name podcaster -d -t \
+docker run --name podcaster -d -t \
   -v "{{dnas_nfs.docker.mount}}/podcaster:/work" \
   -v "{{dnas_nfs.library.mount}}/podcasts:/data" \
   -e PODCASTER_DB=/work/podcaster.db \
