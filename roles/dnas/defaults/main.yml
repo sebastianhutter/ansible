@@ -131,6 +131,7 @@ docker_containers:
       - "NET_ADMIN"
       - "NET_RAW"
     tty: true
+    #network: host
   # podcast container defition. used to download podcasts via git - annex 
   # the container is created on a per use basis - no systemd file
   podcatcher:
