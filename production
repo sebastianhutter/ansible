@@ -1,8 +1,6 @@
 
 [home-lan]
-nas.barfoot.local ansible_ssh_host=192.168.88.20x
-media.barfoot.local ansible_ssh_host=192.168.88.15
-sebastian.barfoot.local ansible_ssh_host=192.168.88.12
+media.barfoot.local ansible_ssh_host=192.168.30.16
 
 [home:children]
 home-lan

@@ -6,8 +6,8 @@
 
 - name: install docker repository
   copy:
-    source: docker.repo
-    destination: /etc/yum.repos.d/docker.repo
+    src: docker.repo
+    dest: /etc/yum.repos.d/docker.repo
 
 - name: install docker and ansible requirements
   dnf:
@@ -21,6 +21,12 @@
     - fdupes
   tags:
     - setup
+
+- name: copy docker daemon.json
+  template:
+    src: daemon.json
+    dest: /etc/docker/daemon.json
+  notify: 
 
 - name: allow traffic to the docker containers to pass trough
   command: firewall-cmd --permanent --zone=trusted --change-interface=docker0
