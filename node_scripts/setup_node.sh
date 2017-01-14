@@ -16,6 +16,7 @@ ANSIBLEHOME=/var/ansible
 SUDOERSFILE=/etc/sudoers.d/ansible
 PAM=/etc/pam.d/sudo
 PUBLICKEY="ssh-rsa AAAAB3NzaC1yc2EAAAABIwAAAQEAqv5AqnC19iCzOFt+bpLgvs0y9gv2COrc0MLpmX6s3xJa5FPDZZpQiqCnQ94ik7AbJwjJImfyfTV8dx+1W+xUFr1252GO+0QHQC9uPI2rDL/KVKb9gHKZFGrXd9uPW3FlY66mWGtKMQYSqpsOpnkhqfHrj4gvi3MKCsJlackSsIw3+E19jMwkfPvQRvV1nWt60I1z9m4r4eHUYo1TZ3mY2yutJcusbHl36cSxFnu+5KGlGnnPaGZFEZYB24xloXRvwGx92eJ22jaiS17FT/IRQ2XGYuXNneNueKsSMD/V7G3CzZMrs69iGheh3V7phnKitA5A4IfH4NXoTFJjp5nMkw=="
+# check if selinux is enabled
 ENABLED=`getenforce`
 
 # the setup does the following
@@ -103,4 +104,5 @@ if [[ $? -ne 0 ]]; then
 	exit 8
 fi
 
-
+# install python
+apt-get install -y python
