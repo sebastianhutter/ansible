@@ -1,0 +1,34 @@
+---
+
+# contains configuration for the different nfs shares (which are not handled by rancher)
+
+# the shares must be configured on the synology nas with squash id to admin set
+cluster_nfs_shares:
+  library:
+    server: nas.barfoot.local
+    path: /volume1/library
+    mount: /mnt/library
+    opts: rw,async,nolock
+    type: nfs
+  calibre:
+    server: nas.barfoot.local
+    path: /volume1/calibre
+    mount: /mnt/calibre
+    opts: rw,async,nolock
+    type: nfs
+  web:
+    server: nas.barfoot.local
+    path: /volume1/web
+    mount: /mnt/web
+    opts: rw,async,nolock
+    type: nfs
+  docker:
+    server: nas.barfoot.local
+    path: /volume1/docker
+    mount: /mnt/docker
+    opts: rw,async,nolock
+    type: nfs
+
+# if for any reason we need a local volume mount for our containers
+# you can use the following directory as host directory
+cluster_local_volumes: /srv/docker

@@ -1,7 +1,7 @@
 ---
 
 - name: install curl
-  dnf: state=present name=curl
+  package: state=present name=curl
 
 - name: create the duckdns directory
   file: dest={{ directory }} state=directory owner=root group=root mode=0755

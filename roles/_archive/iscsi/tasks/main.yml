@@ -1,0 +1,21 @@
+---
+
+# make sure the iscsi docker target is available
+
+- name: scan icsi targets
+  command: iscsiadm -m discovery -t st -p "{{iscsi_host}}"
+
+- name: login to iscsi docker target
+  command: iscsiadm -m node --targetname "{{iscsi_docker_target}}" --portal "{{iscsi_host}}" --login
+
+- name: make sure nodes are automaticaly started
+  replace:
+    dest: /etc/iscsi/iscsid.conf
+    regexp: '^node.startup = manual'
+    replace: 'node.startup = automatic'
+    
+- name: also set automatic for the node config
+  replace:
+    dest: /etc/iscsi/nodes/iqn.2000-01.com.synology:nas.docker-1.5dc81b58cc/{{iscsi_host_ip}},3260,1/default
+    regexp: '^node.startup = manual'
+    replace: 'node.startup = automatic'

@@ -1,6 +1,11 @@
 
+[cluster]
+node00.hutter.local ansible_ssh_host=192.168.30.102
+node01.hutter.local ansible_ssh_host=192.168.30.16
+
 [home-lan]
-media.barfoot.local ansible_ssh_host=192.168.30.16
+cluster
+retropie.barfoot.local ansible_ssh_host=192.168.30.19
 
 [home:children]
 home-lan
@@ -8,5 +13,3 @@ home-lan
 [lan:children]
 home-lan
 
-[fedora23]
-media.barfoot.local

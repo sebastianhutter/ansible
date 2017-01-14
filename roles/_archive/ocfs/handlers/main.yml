@@ -1,0 +1,6 @@
+---
+
+- name: restart ocfs2
+  service:
+    name: o2cb
+    state: restarted

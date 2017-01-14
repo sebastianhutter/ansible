@@ -1,0 +1,36 @@
+---
+
+- hosts: retropie.barfoot.local
+  remote_user: ansible
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  tasks:
+    - name: setup nfs share
+      mount: 
+        name=/mnt/nas src=nas.local:/volume1/retropie fstype=nfs opts=nolock state=mounted
+      tags:
+        - nfs
+
+    - name: regularly sync new roms
+      cron:
+        name: "sync roms"
+        special_time: hourly
+        job: 'rsync -avzh --exclude=".*" --exclude "@*" --exclude ".*/" /mnt/nas/roms/ /home/pi/RetroPie/roms/'
+        user: pi
+
+    - name: regularly sync new splashscreens
+      cron:
+        name: "sync splashscreens"
+        special_time: hourly
+        job: 'rsync -avzh --exclude=".*" --exclude "@*" --exclude ".*/" /mnt/nas/splashscreens/ /home/pi/RetroPie/splashscreens/'
+        user: pi
+
+    - name: regularly sync new bios
+      cron:
+        name: "sync bios"
+        special_time: hourly
+        job: 'rsync -avzh --exclude=".*" --exclude "@*" --exclude ".*/" /mnt/nas/BIOS/ /home/pi/RetroPie/BIOS/'
+        user: pi
+

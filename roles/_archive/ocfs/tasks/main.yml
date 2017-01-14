@@ -1,0 +1,43 @@
+---
+
+# setup ocfs cluster file system
+
+
+- name: install ocfs2 requirements
+  package:
+    name: "{{item}}"
+    state: present
+  with_items:
+    - ocfs2-tools 
+    - ocfs2console
+
+- name: create ocfs2 config directory
+  file:
+    path: /etc/ocfs2
+    state: directory
+
+- name: copy configuration file
+  template:
+    src: etc/ocfs2/cluster.conf
+    dest: /etc/ocfs2/cluster.conf
+
+- name: make sure o2cb is started
+  service:
+    name: o2cb
+    state: started
+    enabled: yes
+
+- name: check if a partition already exists
+  stat: 
+    path: "{{iscsi_docker_device}}1"
+  register: partition
+
+- name: create partition if it not exists
+  command: parted -a optimal "{{iscsi_docker_device}}" mkpart primary 0% 4096MB
+  when: not partition.stat.exists
+
+- name: create filesystem on iscsi target
+  filesystem:
+    fstype: ocfs2
+    dev: /dev/sd1
+    opts: -b 4k -C 32K -L dockerdisk -N 4

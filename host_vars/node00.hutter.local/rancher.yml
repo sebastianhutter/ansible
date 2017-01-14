@@ -1,0 +1,9 @@
+---
+
+rancher_database_host: rancherserver
+rancher_database_port: 3306
+rancher_database_name: cattle
+rancher_database_user: cattle
+rancher_database_password: "{{rancher_database_password_vault}}"
+
+rancher_backup_path: /mnt/docker/volbackup/rancherserver

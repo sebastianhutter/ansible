@@ -1,6 +1,6 @@
 ---
 
-- hosts: media.barfoot.local
+- hosts: node01.hutter.local
   remote_user: ansible
   gather_facts: true
   become_user: root

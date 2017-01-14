@@ -1,0 +1,123 @@
+---
+
+# basic docker setup
+- hosts: node00.hutter.local, node01.hutter.local
+  remote_user: ansible
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  roles:
+    - { name: docker, tags: [docker] }
+
+  tasks:
+    # install nfs stuff
+    - name: install stuff
+      package:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - nfs-common
+        - aptitude
+        - letsencrypt
+
+    - name: and some pip stuff
+      pip:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - python-apt
+    # create a local directory which we can use for local volume mounts
+    - name: create local volume directory for docker volumes
+      file:
+        path: "{{cluster_local_volumes}}"
+        state: directory
+
+    # lets mount some nfs directories which we need for our applications
+    # to work properly
+    - name: mount nfs shares for docker, library etc
+      mount:
+        name="{{item.value.mount}}"
+        src="{{item.value.server}}:{{item.value.path}}"
+        fstype="{{item.value.type}}"
+        opts="{{item.value.opts}}"
+        state=mounted
+      with_dict: "{{cluster_nfs_shares}}"
+
+
+    # mount docker nfs share
+    #- name: setup nfs share
+    #  mount: name=/mnt/docker src=nas.barfoot.local:/volume1/docker fstype=nfs opts=nolock state=mounted
+
+# node00 (rancher server) specifics
+- hosts: node00.hutter.local
+  remote_user: ansible
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  tasks:
+    # download and run rancher
+    - name: download rancher stable image
+      docker_image:
+        name: rancher/server
+        tag: stable
+      tags:
+        - rancher
+
+    - name: rancher server container
+      docker_container:
+        name: rancherserver
+        state: started
+        image: rancher/server:stable
+        log_options:
+          max-size: "100m"
+          max-file: "2"
+        published_ports:
+          - "8080:8080"
+        volumes:
+          - rancherdb_data:/var/lib/mysql
+        restart_policy: unless-stopped
+      tags:
+        - rancher
+
+    - name: create backup directory for rancher backup
+      file:
+        path: "{{rancher_backup_path}}"
+        state: directory
+
+    - name: schedule rancher db backup
+      cron:
+        name: "rancher db backup"
+        special_time: daily
+        job: /usr/bin/docker run -it --rm --link rancherserver mysql:latest sh -c 'echo "[client]\n host=\"{{rancher_database_host}}\"\n user={{rancher_database_user}}\n password=\"{{rancher_database_password}}\"" > my.cnf && exec mysqldump --defaults-file=my.cnf --databases {{rancher_database_name}}' | /bin/gzip -9 > {{rancher_backup_path}}/cattle.sql.gz
+
+# node01 (plex server) specifics
+- hosts: node01.hutter.local
+  remote_user: ansible
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  vars:
+    plex_version: "1.3.3.3148-b38628e"
+
+  roles:
+    # atm for vpn we need barfoot.duckdns.org as a url
+    - { name: duckdns, tags: [duckdns] }
+
+  tasks:
+    # download and run plex
+    - name: download and install plex
+      apt:
+        deb: "https://downloads.plex.tv/plex-media-server/{{plex_version}}/plexmediaserver_{{plex_version}}_amd64.deb"
+      register: installed
+
+    - name: make sure plex is enabled and (re)started
+      service:
+        name: plexmediaserver
+        state: restarted
+        enabled: yes
+      when: installed.changed
+
+
