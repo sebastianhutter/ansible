@@ -65,19 +65,46 @@
       tags:
         - rancher
 
+    # download the custom nginx image
+    - name: download custom nginx image
+      docker_image:
+        name: sebastianhutter/nginx
+      tags:
+        - rancher
+
     - name: rancher server container
       docker_container:
-        name: rancherserver
+        name: rancher
         state: started
         image: rancher/server:stable
         log_options:
           max-size: "100m"
           max-file: "2"
-        published_ports:
-          - "8080:8080"
         volumes:
           - rancherdb_data:/var/lib/mysql
         restart_policy: unless-stopped
+      tags:
+        - rancher
+
+    # make sure to copy the nginx certificates
+    # to the specified volume mount
+    - name: rancher nginx container
+      docker_container:
+        name: rancher-nginx
+        state: started
+        image: sebastianhutter/nginx
+        log_options:
+          max-size: "100m"
+          max-file: "2"
+        volumes:
+          - /srv/docker/rancher-nginx/cert:/etc/nginx/cert
+        restart_policy: unless-stopped
+        links:
+          - rancher
+        published_ports:
+          - 8080:8080
+        env:
+          CONFIG_URL: "http://nas.barfoot.local/dnas/docker/nginx.rancher.conf"
       tags:
         - rancher
 
