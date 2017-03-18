@@ -28,6 +28,12 @@ cluster_nfs_shares:
     mount: /mnt/docker
     opts: rw,async,nolock
     type: nfs
+  pxe:
+    server: nas.barfoot.local
+    path: /volume1/pxe
+    mount: /mnt/pxe
+    opts: rw,async,nolock
+    type: nfs
 
 # if for any reason we need a local volume mount for our containers
 # you can use the following directory as host directory

@@ -1,14 +1,16 @@
 ---
 
 # basic docker setup
-- hosts: node00.hutter.local, node01.hutter.local
+- hosts: node00.hutter.local, node01.hutter.local, node02.hutter.local
   remote_user: ansible
   gather_facts: true
   become_user: root
   become: yes
+  tags: basic
 
   roles:
     - { name: docker, tags: [docker] }
+    - { name: netdata, tags: [netdata] }
 
   tasks:
     # install nfs stuff
@@ -43,11 +45,6 @@
         opts="{{item.value.opts}}"
         state=mounted
       with_dict: "{{cluster_nfs_shares}}"
-
-
-    # mount docker nfs share
-    #- name: setup nfs share
-    #  mount: name=/mnt/docker src=nas.barfoot.local:/volume1/docker fstype=nfs opts=nolock state=mounted
 
 # node00 (rancher server) specifics
 - hosts: node00.hutter.local
@@ -148,3 +145,35 @@
       when: installed.changed
 
 
+# nine hosts
+- hosts: node00.nine.hutter.cloud node01.nine.hutter.cloud
+  remote_user: ubuntu
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  roles:
+    - { name: docker, tags: [docker] }
+
+  tasks:
+    # install nfs stuff
+    - name: install stuff
+      package:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - nfs-common
+        - aptitude
+        - letsencrypt
+
+    - name: and some pip stuff
+      pip:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - python-apt
+    # create a local directory which we can use for local volume mounts
+    - name: create local volume directory for docker volumes
+      file:
+        path: "{{cluster_local_volumes}}"
+        state: directory
