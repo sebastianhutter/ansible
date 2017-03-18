@@ -1,0 +1,43 @@
+---
+
+# install requirements for netdata
+- name: install netdata requirements
+  package:
+    state: present
+    name: "{{item}}"
+  with_items:
+    - zlib1g-dev
+    - uuid-dev
+    - libmnl-dev
+    - gcc
+    - make
+    - git
+    - autoconf
+    - autoconf-archive
+    - autogen
+    - automake
+    - pkg-config
+    - curl
+
+# checkout and install netdata
+- name: checkout netdata repository
+  git:
+    repo: https://github.com/firehol/netdata.git
+    dest: /usr/local/src/netdata
+    depth: 1
+    update: no
+
+- name: install netdata
+  shell: ./netdata-installer.sh
+  args:
+    chdir: /usr/local/src/netdata/
+    executable: /bin/bash
+    creates: /usr/sbin/netdata
+
+# make sure netdata is enabled and started
+- name: enable netdata
+  service:
+    name: netdata
+    state: started
+    enabled: yes
+
