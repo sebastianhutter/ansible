@@ -10,6 +10,7 @@
 
   roles:
     - { name: docker, tags: [docker] }
+    - { name: netshare, tags: [netshare] }
     - { name: netdata, tags: [netdata] }
 
   tasks:
@@ -69,6 +70,20 @@
       tags:
         - rancher
 
+    - name: busybox volume container
+      docker_container:
+        name: rancher_mysql
+        state: present
+        image: busybox
+        command: /bin/true
+        volume_driver: nfs
+        volumes:
+          - nas.barfoot.local/volume1/docker/rancher_mysql:/var/lib/mysql
+        log_options:
+          max-size: "100m"
+          max-file: "2"
+        restart_policy: no
+
     - name: rancher server container
       docker_container:
         name: rancher
@@ -77,11 +92,12 @@
         log_options:
           max-size: "100m"
           max-file: "2"
-        volumes:
-          - rancherdb_data:/var/lib/mysql
+        volumes_from:
+          - rancher_mysql
         restart_policy: unless-stopped
       tags:
         - rancher
+        - rancher-server
 
     # make sure to copy the nginx certificates
     # to the specified volume mount
@@ -93,8 +109,9 @@
         log_options:
           max-size: "100m"
           max-file: "2"
+        volume_driver: nfs
         volumes:
-          - /srv/docker/rancher-nginx/cert:/etc/nginx/cert
+          - - nas.barfoot.local/volume1/docker/letsencrypt-certificates-external/letsencryptcert-external:/etc/nginx/cert
         restart_policy: unless-stopped
         links:
           - rancher
@@ -144,36 +161,3 @@
         enabled: yes
       when: installed.changed
 
-
-# nine hosts
-- hosts: node00.nine.hutter.cloud node01.nine.hutter.cloud
-  remote_user: ubuntu
-  gather_facts: true
-  become_user: root
-  become: yes
-
-  roles:
-    - { name: docker, tags: [docker] }
-
-  tasks:
-    # install nfs stuff
-    - name: install stuff
-      package:
-        name: "{{item}}"
-        state: present
-      with_items:
-        - nfs-common
-        - aptitude
-        - letsencrypt
-
-    - name: and some pip stuff
-      pip:
-        name: "{{item}}"
-        state: present
-      with_items:
-        - python-apt
-    # create a local directory which we can use for local volume mounts
-    - name: create local volume directory for docker volumes
-      file:
-        path: "{{cluster_local_volumes}}"
-        state: directory
