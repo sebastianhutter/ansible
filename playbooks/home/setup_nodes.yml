@@ -111,7 +111,7 @@
           max-file: "2"
         volume_driver: nfs
         volumes:
-          - - nas.barfoot.local/volume1/docker/letsencrypt-certificates-external/letsencryptcert-external:/etc/nginx/cert
+          - nas.barfoot.local/volume1/docker/letsencrypt-certificates-external/letsencryptcert-external:/etc/nginx/cert
         restart_policy: unless-stopped
         links:
           - rancher
