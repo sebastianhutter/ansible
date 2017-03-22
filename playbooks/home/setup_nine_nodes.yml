@@ -1,0 +1,32 @@
+# nine hosts
+- hosts: node00.nine.hutter.cloud node01.nine.hutter.cloud
+  remote_user: ubuntu
+  gather_facts: true
+  become_user: root
+  become: yes
+
+  roles:
+    - { name: docker, tags: [docker] }
+
+  tasks:
+    # install nfs stuff
+    - name: install stuff
+      package:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - nfs-common
+        - aptitude
+        - letsencrypt
+
+    - name: and some pip stuff
+      pip:
+        name: "{{item}}"
+        state: present
+      with_items:
+        - python-apt
+    # create a local directory which we can use for local volume mounts
+    - name: create local volume directory for docker volumes
+      file:
+        path: "{{cluster_local_volumes}}"
+        state: directory
