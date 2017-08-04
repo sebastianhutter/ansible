@@ -3,6 +3,8 @@
 node00.hutter.local ansible_ssh_host=192.168.30.102
 node01.hutter.local ansible_ssh_host=192.168.30.16
 node02.hutter.local ansible_ssh_host=192.168.30.105
+
+[cluster-nine]
 node00.nine.hutter.cloud ansible_ssh_host=cloud-sebastianhutter-02.nine.ch ansible_ssh_user=ubuntu
 node01.nine.hutter.cloud ansible_ssh_host=cloud-sebastianhutter-03.nine.ch ansible_ssh_user=ubuntu
 
@@ -16,3 +18,7 @@ home-lan
 [lan:children]
 home-lan
 
+[etcd-cluster-1]
+node00.hutter.local ansible_ssh_host=192.168.30.102
+node01.hutter.local ansible_ssh_host=192.168.30.16
+node02.hutter.local ansible_ssh_host=192.168.30.105

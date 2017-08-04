@@ -12,6 +12,7 @@
     - { name: docker, tags: [docker] }
     - { name: netshare, tags: [netshare] }
     - { name: netdata, tags: [netdata] }
+    - { name: etcd, tags: [etcd] }
 
   tasks:
     # install nfs stuff
@@ -72,17 +73,19 @@
 
     - name: busybox volume container
       docker_container:
-        name: rancher_mysql
+        name: rancher-mysql
         state: present
         image: busybox
         command: /bin/true
         volume_driver: nfs
         volumes:
-          - nas.barfoot.local/volume1/docker/rancher_mysql:/var/lib/mysql
+          - "{{cluster_local_volumes}}/rancher-mysql:/var/lib/mysql"
         log_options:
           max-size: "100m"
           max-file: "2"
         restart_policy: no
+      tags:
+        - rancher
 
     - name: rancher server container
       docker_container:
@@ -93,7 +96,7 @@
           max-size: "100m"
           max-file: "2"
         volumes_from:
-          - rancher_mysql
+          - rancher-mysql
         restart_policy: unless-stopped
       tags:
         - rancher
